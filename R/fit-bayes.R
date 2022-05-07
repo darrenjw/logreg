@@ -42,7 +42,8 @@ out = metropolisHastings(fit$par, ll,
                          dprior = function(x, log=TRUE) lprior(x),
                          thin=500)
 mcmcSummary(out)
-pairs(out)
+image(cor(out)[ncol(out):1,])
+pairs(out[sample(1:10000,1000),],pch=19,cex=0.2)
 
 ## eof
 
