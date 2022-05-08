@@ -36,11 +36,11 @@ print(fit)
 print(fit$par)
 
 print("Next, MH")
-out = metropolisHastings(fit$par, ll,
+out = metropolisHastings(init, ll,
                          function(x) c(rnorm(1, x[1], 0.2),
                                        rnorm(p-1, x[-1], 0.02)),
                          dprior = function(x, log=TRUE) lprior(x),
-                         thin=500)
+                         thin=1000)
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])
 pairs(out[sample(1:10000,1000),],pch=19,cex=0.2)
