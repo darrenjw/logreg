@@ -39,7 +39,7 @@ mala = function(init, lpi, glpi, dt = 1e-4, pre = 1, ...) {
     sdt = sqrt(dt)
     spre = sqrt(pre)
     advance = function(x) x + 0.5*pre*glpi(x)*dt
-    metropolisHastings(init, lpost,
+    metropolisHastings(init, lpi,
                        function(x) rnorm(p, advance(x), spre*sdt),
                        function(new, old, log=TRUE) sum(dnorm(new, advance(old), spre*sdt, log)),
                        ...)

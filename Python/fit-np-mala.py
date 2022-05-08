@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# fit-numpy.py
-# Basic Bayesian fits using regular numpy
+# fit-np-mala.py
+# Bayesian fit using numpy for MALA
 
 import os
 import pandas as pd
@@ -25,20 +25,12 @@ def ll(beta):
 
 init = np.random.randn(p)*0.1
 print(init)
-print(ll(init))
 
-print("First, MLE:")
-res = minimize(lambda x: -ll(x), init, method='BFGS')
-print(res.x)
-print(ll(res.x))
-
-print("MAP next:")
+print("MAP:")
 
 def lprior(beta):
     return (sp.stats.norm.logpdf(beta[0], loc=0, scale=10) + 
             np.sum(sp.stats.norm.logpdf(beta[range(1,p)], loc=0, scale=1)))
-
-print(lprior(init))
 
 def lpost(beta):
     return ll(beta) + lprior(beta)
@@ -48,9 +40,9 @@ res = minimize(lambda x: -lpost(x), init, method='BFGS')
 print(res.x)
 print(ll(res.x))
 
-print("Next, MH:")
+print("MALA:")
 
-def metHet(init, lpost, rprop, dprop = lambda new, old: 1.,
+def metHast(init, lpost, rprop, dprop = lambda new, old: 1.,
            thin = 10, iters = 10000, verb = True):
     p = len(init)
     olp = -np.inf
@@ -70,15 +62,24 @@ def metHet(init, lpost, rprop, dprop = lambda new, old: 1.,
                 olp = lp
         mat[i,:] = x
     if (verb):
-        print("\nDone.", flush=True)
+        print("\nDone.")
     return mat
 
-pre = np.array([10.,1.,1.,1.,1.,1.,5.,1.])
+def mala(init, lpi, glpi, dt = 1e-4, pre = 1, thin = 10, iters = 10000, verb = True):
+    p = len(init)
+    sdt = np.sqrt(dt)
+    spre = np.sqrt(pre)
+    advance = lambda x: x + 0.5*pre*glpi(x)*dt
+    return metHast(init, lpi, lambda x: advance(x) + np.random.randn(p)*spre*sdt,
+            lambda new, old: np.sum(sp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt)),
+            thin, iters, verb)
 
-def rprop(beta):
-    return beta + 0.02*pre*np.random.randn(p)
+pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 
-out = metHet(res.x, lpost, rprop, thin=1000)
+def glp(beta):
+    return (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
+
+out = mala(res.x, lpost, glp, dt=1e-5, thin=1000)
 
 print(out)
 print("Posterior summaries:")
@@ -92,21 +93,21 @@ figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
     axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("np-trace.png")
+plt.savefig("np-mala-trace.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].hist(out[:,i], 50)
     axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("np-hist.png")
+plt.savefig("np-mala-hist.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
     axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("np-acf.png")
+plt.savefig("np-mala-acf.png")
 #plt.show()
 
 
