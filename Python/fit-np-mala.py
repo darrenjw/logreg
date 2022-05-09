@@ -35,10 +35,23 @@ def lprior(beta):
 def lpost(beta):
     return ll(beta) + lprior(beta)
 
+print("without gradients")
 print(lpost(init))
 res = minimize(lambda x: -lpost(x), init, method='BFGS')
 print(res.x)
 print(ll(res.x))
+
+def glp(beta):
+    return (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
+
+print(glp(init))
+print(glp(res.x))
+
+print("with gradients")
+res = minimize(lambda x: -lpost(x), init, jac=glp, method='BFGS')
+print(res.x)
+print(ll(res.x))
+print(glp(res.x))
 
 print("MALA:")
 
@@ -75,9 +88,6 @@ def mala(init, lpi, glpi, dt = 1e-4, pre = 1, thin = 10, iters = 10000, verb = T
             thin, iters, verb)
 
 pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
-
-def glp(beta):
-    return (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
 
 out = mala(res.x, lpost, glp, dt=1e-5, pre=pre, thin=1000)
 

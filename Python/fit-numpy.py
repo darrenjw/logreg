@@ -50,7 +50,7 @@ print(ll(res.x))
 
 print("Next, MH:")
 
-def metHet(init, lpost, rprop, dprop = lambda new, old: 1.,
+def metHast(init, lpost, rprop, dprop = lambda new, old: 1.,
            thin = 10, iters = 10000, verb = True):
     p = len(init)
     olp = -np.inf
@@ -78,7 +78,7 @@ pre = np.array([10.,1.,1.,1.,1.,1.,5.,1.])
 def rprop(beta):
     return beta + 0.02*pre*np.random.randn(p)
 
-out = metHet(res.x, lpost, rprop, thin=1000)
+out = metHast(res.x, lpost, rprop, thin=1000)
 
 print(out)
 print("Posterior summaries:")
