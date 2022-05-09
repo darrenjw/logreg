@@ -28,9 +28,10 @@ print(init)
 
 print("MAP:")
 
+pscale = np.array([10.,1.,1.,1.,1.,1.,1.,1.])
+
 def lprior(beta):
-    return (sp.stats.norm.logpdf(beta[0], loc=0, scale=10) + 
-            np.sum(sp.stats.norm.logpdf(beta[range(1,p)], loc=0, scale=1)))
+    return np.sum(sp.stats.norm.logpdf(beta, loc=0, scale=pscale))
 
 def lpost(beta):
     return ll(beta) + lprior(beta)
@@ -42,13 +43,15 @@ print(res.x)
 print(ll(res.x))
 
 def glp(beta):
-    return (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
+    glpr = -beta/(pscale*pscale)
+    gll = (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
+    return (glpr + gll)
 
 print(glp(init))
 print(glp(res.x))
 
 print("with gradients")
-res = minimize(lambda x: -lpost(x), init, jac=glp, method='BFGS')
+res = minimize(lambda x: -lpost(x), init, jac=lambda x: -glp(x), method='BFGS')
 print(res.x)
 print(ll(res.x))
 print(glp(res.x))
