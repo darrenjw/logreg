@@ -79,7 +79,7 @@ pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 def glp(beta):
     return (X.T).dot(y - 1/(1 + np.exp(-X.dot(beta))))
 
-out = mala(res.x, lpost, glp, dt=1e-5, thin=1000)
+out = mala(res.x, lpost, glp, dt=1e-5, pre=pre, thin=1000)
 
 print(out)
 print("Posterior summaries:")
