@@ -20,17 +20,37 @@ ll = function(beta)
 init = rnorm(p, 0.1)
 names(init) = colnames(X)
 
+pscale = c(10, rep(1,7))
+
 lprior = function(beta)
-    dnorm(beta[1], 0, 10, log=TRUE) + sum(dnorm(beta[-1], 0, 1, log=TRUE))
+    sum(dnorm(beta, 0, pscale, log=TRUE))
 
 lpost = function(beta) ll(beta) + lprior(beta)
 
-glp = function(beta) as.vector(t(X) %*% (y - 1/(1 + exp(-X %*% beta))))
+glp = function(beta) {
+    glpr = -beta/(pscale*pscale)
+    gll = as.vector(t(X) %*% (y - 1/(1 + exp(-X %*% beta))))
+    glpr + gll
+}
+
+print(init)
+print(ll(init))
+print(glp(init))
 
 print("MAP:")
+print("without gradients")
 fit = optim(init, lpost, method="BFGS", control=list(fnscale=-1, maxit=1000))
-print(fit)
+#print(fit)
 print(fit$par)
+print(ll(fit$par))
+print(glp(fit$par))
+
+print("with gradients")
+fit = optim(init, lpost, glp, method="BFGS", control=list(fnscale=-1, maxit=1000))
+#print(fit)
+print(fit$par)
+print(ll(fit$par))
+print(glp(fit$par))
 
 print("Next, MALA:")
 
