@@ -15,6 +15,7 @@ X = cbind(Int=1, X)
 print(y[1:6])
 print(head(X))
 
+set.seed(43)
 init = rnorm(p, 0.1)
 names(init) = colnames(X)
 data = list(X=X, y=as.integer(y), p=p, n=n)
