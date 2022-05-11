@@ -36,11 +36,43 @@ print(fit)
 print(fit$par)
 
 print("Next, MH")
-out = metropolisHastings(init, ll,
-                         function(x) c(rnorm(1, x[1], 0.2),
-                                       rnorm(p-1, x[-1], 0.02)),
-                         dprior = function(x, log=TRUE) lprior(x),
-                         thin=1000)
+
+mhKernel = function(logPost, rprop, dprop = function(new, old, ...) { 1 })
+    function(x, ll) {
+        prop = rprop(x)
+        llprop = logPost(prop)
+        a = llprop - ll + dprop(x, prop) - dprop(prop, x)
+        if (log(runif(1)) < a)
+            list(x=prop, ll=llprop)
+        else
+            list(x=x, ll=ll)
+    }
+    
+mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
+    p = length(init)
+    ll = -Inf
+    mat = matrix(0, nrow = iters, ncol = p)
+    colnames(mat) = names(init)
+    x = init
+    if (verb) 
+        message(paste(iters, "iterations"))
+    for (i in 1:iters) {
+        if (verb) 
+            message(paste(i, ""), appendLF = FALSE)
+        for (j in 1:thin) {
+            pair = kernel(x, ll)
+            x = pair$x
+            ll = pair$ll
+            }
+        mat[i, ] = x
+        }
+    if (verb) 
+        message("Done.")
+    mat
+}
+
+out = mcmc(fit$par, mhKernel(lpost, function(x) c(rnorm(1, x[1], 0.2),
+                                      rnorm(p-1, x[-1], 0.02))), thin=1000)
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])
 pairs(out[sample(1:10000,1000),],pch=19,cex=0.2)

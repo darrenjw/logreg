@@ -54,19 +54,50 @@ print(glp(fit$par))
 
 print("Next, MALA:")
 
-mala = function(init, lpi, glpi, dt = 1e-4, pre = 1, ...) {
+mhKernel = function(logPost, rprop, dprop = function(new, old, ...) { 1 })
+    function(x, ll) {
+        prop = rprop(x)
+        llprop = logPost(prop)
+        a = llprop - ll + dprop(x, prop) - dprop(prop, x)
+        if (log(runif(1)) < a)
+            list(x=prop, ll=llprop)
+        else
+            list(x=x, ll=ll)
+    }
+    
+mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     p = length(init)
+    ll = -Inf
+    mat = matrix(0, nrow = iters, ncol = p)
+    colnames(mat) = names(init)
+    x = init
+    if (verb) 
+        message(paste(iters, "iterations"))
+    for (i in 1:iters) {
+        if (verb) 
+            message(paste(i, ""), appendLF = FALSE)
+        for (j in 1:thin) {
+            pair = kernel(x, ll)
+            x = pair$x
+            ll = pair$ll
+            }
+        mat[i, ] = x
+        }
+    if (verb) 
+        message("Done.")
+    mat
+}
+
+malaKernel = function(lpi, glpi, dt = 1e-4, pre = 1) {
     sdt = sqrt(dt)
     spre = sqrt(pre)
     advance = function(x) x + 0.5*pre*glpi(x)*dt
-    metropolisHastings(init, lpi,
-                       function(x) rnorm(p, advance(x), spre*sdt),
-                       function(new, old, log=TRUE) sum(dnorm(new, advance(old), spre*sdt, log)),
-                       ...)
+    mhKernel(lpi, function(x) rnorm(p, advance(x), spre*sdt),
+             function(new, old) sum(dnorm(new, advance(old), spre*sdt, log=TRUE)))
 }
 
-#out = mala(fit$par, lpost, glp, dt=1e-5, pre=c(100,1,1,1,1,1,25,1), thin=1000)
-out = mala(init, lpost, glp, dt=1e-5, pre=c(100,1,1,1,1,1,25,1), thin=1000)
+
+out = mcmc(fit$par, malaKernel(lpost, glp, dt=1e-5, pre=c(100,1,1,1,1,1,25,1)), thin=1000)
 
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])
