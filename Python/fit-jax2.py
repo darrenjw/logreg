@@ -99,13 +99,17 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
     key = jax.random.PRNGKey(42)
     keys = jax.random.split(key, iters)
     @jit
-    def iter(s, k):
+    def step(s, k):
         [x, ll] = s
-        for j in range(thin):
-            x, ll = kernel(k, x, ll)
-            k, _ = jax.random.split(k)
+        x, ll = kernel(k, x, ll)
         s = [x, ll]
         return s, s
+    @jit
+    def iter(s, k):
+        keys = jax.random.split(k, thin)
+        _, states = jax.lax.scan(step, s, keys)
+        final = [states[0][thin-1], states[1][thin-1]]
+        return final, final
     ll = -np.inf
     x = init
     _, states = jax.lax.scan(iter, [x, ll], keys)
