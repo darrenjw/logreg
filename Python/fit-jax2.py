@@ -82,7 +82,7 @@ print(beta)
 print(ll(beta))
 print(jnp.linalg.norm(glp(beta)))
 
-print("Next, MH:")
+print("Next, MH. Be patient...")
 
 def mhKernel(lpost, rprop, dprop = jit(lambda new, old: 1.)):
     @jit
@@ -95,24 +95,21 @@ def mhKernel(lpost, rprop, dprop = jit(lambda new, old: 1.)):
         return jnp.where(accept, prop, x), jnp.where(accept, lp, ll)
     return kernel
         
-def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
+def mcmc(init, kernel, thin = 10, iters = 10000):
     key = jax.random.PRNGKey(42)
-    p = len(init)
-    ll = -np.inf
-    mat = np.zeros((iters, p))
-    x = init
-    if (verb):
-        print(str(iters) + " iterations")
-    for i in range(iters):
-        if (verb):
-            print(str(i), end=" ", flush=True)
+    keys = jax.random.split(key, iters)
+    @jit
+    def iter(s, k):
+        [x, ll] = s
         for j in range(thin):
-            key0, key = jax.random.split(key)
-            x, ll = kernel(key, x, ll)
-        mat[i,:] = x
-    if (verb):
-        print("\nDone.", flush=True)
-    return mat
+            x, ll = kernel(k, x, ll)
+            k, _ = jax.random.split(k)
+        s = [x, ll]
+        return s, s
+    ll = -np.inf
+    x = init
+    _, states = jax.lax.scan(iter, [x, ll], keys)
+    return states[0]
 
 pre = jnp.array([10.,1.,1.,1.,1.,1.,5.,1.]).astype(jnp.float32)
 
@@ -134,21 +131,21 @@ figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
     axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("jax-trace.png")
+plt.savefig("jax2-trace.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].hist(out[:,i], 50)
     axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("jax-hist.png")
+plt.savefig("jax2-hist.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
     axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("jax-acf.png")
+plt.savefig("jax2-acf.png")
 #plt.show()
 
 
