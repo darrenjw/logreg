@@ -69,6 +69,14 @@ def mhKernel(lpost, rprop, dprop = lambda new, old: 1.):
         return x, ll
     return kernel
         
+def malaKernel(lpi, glpi, dt = 1e-4, pre = 1):
+    p = len(init)
+    sdt = np.sqrt(dt)
+    spre = np.sqrt(pre)
+    advance = lambda x: x + 0.5*pre*glpi(x)*dt
+    return mhKernel(lpi, lambda x: advance(x) + np.random.randn(p)*spre*sdt,
+            lambda new, old: np.sum(sp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt)))
+
 def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
     p = len(init)
     ll = -np.inf
@@ -86,19 +94,9 @@ def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
         print("\nDone.", flush=True)
     return mat
 
-
-def mala(init, lpi, glpi, dt = 1e-4, pre = 1, thin = 10, iters = 10000, verb = True):
-    p = len(init)
-    sdt = np.sqrt(dt)
-    spre = np.sqrt(pre)
-    advance = lambda x: x + 0.5*pre*glpi(x)*dt
-    return mcmc(init, mhKernel(lpi, lambda x: advance(x) + np.random.randn(p)*spre*sdt,
-            lambda new, old: np.sum(sp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt))),
-            thin, iters, verb)
-
 pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 
-out = mala(res.x, lpost, glp, dt=1e-5, pre=pre, thin=10)
+out = mcmc(res.x, malaKernel(lpost, glp, dt=1e-5, pre=pre), thin=1000)
 
 print(out)
 print("Posterior summaries:")
