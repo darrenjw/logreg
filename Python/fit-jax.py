@@ -34,6 +34,7 @@ y = y.astype(jnp.float32)
 def ll(beta):
     return jnp.sum(-jnp.log(1 + jnp.exp(-(2*y - 1)*jnp.dot(X, beta))))
 
+np.random.seed(41) # for reproducibility
 init = np.random.randn(p)*0.1
 print(init)
 init = init.astype(jnp.float32)
@@ -80,6 +81,8 @@ print(ll(beta))
 print(jnp.linalg.norm(glp(beta)))
 
 print("Next, MH:")
+
+
 
 def metHast(init, lpost, rprop, dprop = lambda new, old: 1.,
            thin = 10, iters = 10000, verb = True):

@@ -58,10 +58,20 @@ print(glp(res.x))
 
 print("MALA:")
 
-def metHast(init, lpost, rprop, dprop = lambda new, old: 1.,
-           thin = 10, iters = 10000, verb = True):
+def mhKernel(lpost, rprop, dprop = lambda new, old: 1.):
+    def kernel(x, ll):
+        prop = rprop(x)
+        lp = lpost(prop)
+        a = lp - ll + dprop(x, prop) - dprop(prop, x)
+        if (np.log(np.random.rand()) < a):
+            x = prop
+            ll = lp
+        return x, ll
+    return kernel
+        
+def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
     p = len(init)
-    olp = -np.inf
+    ll = -np.inf
     mat = np.zeros((iters, p))
     x = init
     if (verb):
@@ -70,29 +80,25 @@ def metHast(init, lpost, rprop, dprop = lambda new, old: 1.,
         if (verb):
             print(str(i), end=" ", flush=True)
         for j in range(thin):
-            prop = rprop(x)
-            lp = lpost(prop)
-            a = lp - olp + dprop(x, prop) - dprop(prop, x)
-            if (np.log(np.random.rand()) < a):
-                x = prop
-                olp = lp
+            x, ll = kernel(x, ll)
         mat[i,:] = x
     if (verb):
-        print("\nDone.")
+        print("\nDone.", flush=True)
     return mat
+
 
 def mala(init, lpi, glpi, dt = 1e-4, pre = 1, thin = 10, iters = 10000, verb = True):
     p = len(init)
     sdt = np.sqrt(dt)
     spre = np.sqrt(pre)
     advance = lambda x: x + 0.5*pre*glpi(x)*dt
-    return metHast(init, lpi, lambda x: advance(x) + np.random.randn(p)*spre*sdt,
-            lambda new, old: np.sum(sp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt)),
+    return mcmc(init, mhKernel(lpi, lambda x: advance(x) + np.random.randn(p)*spre*sdt,
+            lambda new, old: np.sum(sp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt))),
             thin, iters, verb)
 
 pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 
-out = mala(res.x, lpost, glp, dt=1e-5, pre=pre, thin=1000)
+out = mala(res.x, lpost, glp, dt=1e-5, pre=pre, thin=10)
 
 print(out)
 print("Posterior summaries:")
