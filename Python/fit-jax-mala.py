@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# fit-jax2.py
-# MH using JAX
+# fit-jax-mala.py
+# MALA using JAX
 
 import os
 import pandas as pd
@@ -94,7 +94,15 @@ def mhKernel(lpost, rprop, dprop = jit(lambda new, old: 1.)):
         accept = (jnp.log(jax.random.uniform(key1)) < a)
         return jnp.where(accept, prop, x), jnp.where(accept, lp, ll)
     return kernel
-        
+
+def malaKernel(lpi, glpi, dt = 1e-4, pre = 1):
+    p = len(init)
+    sdt = jnp.sqrt(dt)
+    spre = jnp.sqrt(pre)
+    advance = jit(lambda x: x + 0.5*pre*glpi(x)*dt)
+    return mhKernel(lpi, jit(lambda k, x: advance(x) + jax.random.normal(k, [p])*spre*sdt),
+            jit(lambda new, old: jnp.sum(jsp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt))))
+
 def mcmc(init, kernel, thin = 10, iters = 10000):
     key = jax.random.PRNGKey(42)
     keys = jax.random.split(key, iters)
@@ -115,13 +123,9 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
     _, states = jax.lax.scan(iter, [x, ll], keys)
     return states[0]
 
-pre = jnp.array([10.,1.,1.,1.,1.,1.,5.,1.]).astype(jnp.float32)
+pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 
-@jit
-def rprop(key, beta):
-    return beta + 0.02*pre*jax.random.normal(key, [p])
-
-out = mcmc(init, mhKernel(lpost, rprop), thin=1000)
+out = mcmc(beta, malaKernel(lpost, glp, dt=1e-5, pre=pre), thin=1000)
 
 print(out)
 print("Posterior summaries:")
@@ -135,21 +139,21 @@ figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
     axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("jax2-trace.png")
+plt.savefig("jax-mala-trace.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].hist(out[:,i], 50)
     axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("jax2-hist.png")
+plt.savefig("jax-mala-hist.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
     axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("jax2-acf.png")
+plt.savefig("jax-mala-acf.png")
 #plt.show()
 
 
