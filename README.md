@@ -16,15 +16,23 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 
 * [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's not 1993 any more).
 * [fit-glm.R](R/fit-glm.R) - kick-off with a simple GLM fit in R for sanity-checking purposes.
-* [fit-bayes.R](R/fit-bayes.R) - Random walk Metropolis MCMC sampler in R.
+* [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
 * [fit-mala.R](R/fit-mala.R) - MALA in R (with a simple diagonal pre-conditioner).
 * [fit-rjags.R](R/fit-rjags.R) - Fit using rjags. Note that this script probably won't work unless a site-wide installation of JAGS is available. 
 * [fit-stan.R](R/fit-rstan.R) - Fit using rstan.
 
 ### Python
 
+These scripts assume a Python installation with [NumPy](https://numpy.org/) and [SciPy](https://scipy.org/). The later scripts require [JAX](https://jax.readthedocs.io/) and [BlackJAX](https://blackjax-devs.github.io/blackjax/), which can be `pip` installed for basic use. See the websites for more detailed information.
+
 * [fit-numpy.py](Python/fit-numpy.py) - 
-* 
+* [fit-np-mala.py](Python/fit-np-mala.py) - 
+* [fit-jax.py](Python/fit-jax.py) - 
+* [fit-jax2.py](Python/fit-jax2.py) - 
+* [fit-jax-mala.py](Python/fit-jax-mala.py) - 
+* [fit-blackjax.py](Python/fit-blackjax.py) - 
+* [fit-blackjax-mala.py](Python/fit-blackjax-mala.py) - 
+* [fit-blackjax-nuts.py](Python/fit-blackjax-nuts.py) - 
 
 ### Scala
 
