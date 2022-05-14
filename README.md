@@ -8,13 +8,25 @@ This repo contains code for MCMC-based fully Bayesian inference for a logistic r
 
 ## The model
 
-**Model and prior here, including likelihood, prior, gradient and hessian...**
+Here we will conduct fully Bayesian inference for the typical Bayesian [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) model for a binary outcome based on some covariates. The *i*th observation will be 1 with probability *p_i*, and the [logit](https://en.wikipedia.org/wiki/Logit) of *p_i* will depend linearly on predictors. This leads to a log-likelihood function
+
+*l(b; y) = -sum[log(1 + exp{-[2y - 1](Xb)})]*
+
+where *y* is a binary vector of responses, *X* is an *n* by *p* matrix of covariates and *b* is the *p*-vector of parameters of inferential interest.
+
+JAX can auto-diff likelihoods like this, but for comparison purposes, we will use hard-coded gradients for MALA algorithms in R and Python (with NumPy).
+
+*grad l = X'(y-p), where p = 1/(1 + exp{-Xb})*
+
+For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of *b*. That is, *b_i ~ N(0, v_i)*. Not that the gradient of the log of this prior is
+
+*grad p = -b/v*
 
 ### R
 
 Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pacman/) to download and install any missing dependencies.
 
-* [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's not 1993 any more).
+* [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's now the 21st Century).
 * [fit-glm.R](R/fit-glm.R) - kick-off with a simple GLM fit in R for sanity-checking purposes.
 * [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
 * [fit-mala.R](R/fit-mala.R) - MALA in R (with a simple diagonal pre-conditioner).
