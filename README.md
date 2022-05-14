@@ -22,7 +22,7 @@ For a fully Bayesian analysis, we also need a prior distribution. Here we will a
 
 *grad p(b) = -b/v*.
 
-We will be analysing the "Pima" dataset, with 7 predictors. Including an intercept as the first covariate gives a parameter vector of length *p*=8. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
+We will be analysing the "Pima" training dataset, with 200 observations and 7 predictors. Including an intercept as the first covariate gives a parameter vector of length *p*=8. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
 
 ### R
 
