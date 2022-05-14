@@ -16,11 +16,13 @@ where *y* is a binary vector of responses, *X* is an *n* by *p* matrix of covari
 
 JAX can auto-diff likelihoods like this, but for comparison purposes, we will use hard-coded gradients for MALA algorithms in R and Python (with NumPy).
 
-*grad l = X'(y-p), where p = 1/(1 + exp{-Xb})*
+*grad l(b) = X'(y-p), where p = 1/(1 + exp{-Xb})*
 
-For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of *b*. That is, *b_i ~ N(0, v_i)*. Not that the gradient of the log of this prior is
+For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of *b*. That is, *b_i ~ N(0, v_i)*. Note that the gradient of the log of this prior is
 
-*grad p = -b/v*
+*grad p(b) = -b/v*
+
+We will be analysing the "Pima" dataset, with 7 predictors. Including an intercept as the first covariate gives a parameter vector of length *p*=8. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
 
 ### R
 
