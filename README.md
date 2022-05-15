@@ -33,7 +33,7 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 * [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
 * [fit-mala.R](R/fit-mala.R) - MALA in R (with a simple diagonal pre-conditioner).
 * [fit-rjags.R](R/fit-rjags.R) - Fit using rjags. Note that this script probably won't work unless a site-wide installation of JAGS is available. 
-* [fit-stan.R](R/fit-rstan.R) - Fit using rstan.
+* [fit-rstan.R](R/fit-rstan.R) - Fit using rstan.
 
 ### Python
 
