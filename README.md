@@ -4,7 +4,7 @@
 
 **This repo is a work-in-progress. Once it is reasonably complete, I'll write a post or two about it over on my [blog](https://darrenjw.wordpress.com/).**
 
-This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/) and [Scala](https://www.scala-lang.org/), using bespoke hand-coded samplers (both random walk Metropolis and MALA), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), and [Spark](https://spark.apache.org/). I intend to very soon add similar examples in [DEX](https://github.com/google-research/dex-lang) and [C](https://en.wikipedia.org/wiki/C_(programming_language)).
+This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/) and [Scala](https://www.scala-lang.org/), using bespoke hand-coded samplers (both random walk Metropolis and MALA), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), and [Spark](https://spark.apache.org/). I intend to very soon add similar examples in a few other languages (possibly [Julia](https://julialang.org/), [DEX](https://github.com/google-research/dex-lang) and [C](https://en.wikipedia.org/wiki/C_(programming_language))).
 
 ## The model
 
