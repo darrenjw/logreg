@@ -9,7 +9,7 @@ import smfsb._
 import breeze.stats.distributions.Gaussian
 import breeze.linalg.{DenseVector => BDV, _}
 import breeze.numerics._
-import breeze.stats.distributions.Rand.FixedSeed.randBasis
+//import breeze.stats.distributions.Rand.FixedSeed.randBasis
 
 object FitSpark {
 
@@ -32,6 +32,7 @@ object FitSpark {
     val df2 = df.withColumn("y", s2d_udf(df.col("type"))).drop("type")
     val df3 = new RFormula().setFormula("Type ~ .").fit(df2).
       transform(df2).select("y", "features")
+    println(df3 show 5)
     val p = 8
     def ll(beta: BDV[Double]): Double = 
       df3.map{row =>

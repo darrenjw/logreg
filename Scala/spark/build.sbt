@@ -12,7 +12,7 @@ libraryDependencies  ++= Seq(
   "org.apache.spark" %% "spark-sql" % "3.2.1" % Provided,
   "org.apache.spark" %% "spark-mllib" % "3.2.1" % Provided,
   //"org.scalanlp" %% "breeze" % "2.0",
-  "org.scalanlp" %% "breeze-viz" % "2.0",
+  //"org.scalanlp" %% "breeze-viz" % "2.0",
   //"org.scalanlp" %% "breeze-natives" % "2.0",
   "com.github.darrenjw" %% "scala-smfsb" % "0.7"
 )
