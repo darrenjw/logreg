@@ -2,4 +2,11 @@
 
 The Scala examples require a recent JVM and [sbt](https://www.scala-sbt.org/) to run. Typing `sbt run` from the `lr` subdirectory (not this directory) should download missing dependencies and run the examples.
 
+See the `sbt` web page for installation instructions. But also note that [coursier](https://get-coursier.io/) can be used to install a complete Scala development environment (including JVMs, `sbt`, the Scala compiler, etc.), so that is also worth considering.
+
+To run a particular example, do, eg.
+```bash
+sbt "runMain rwmh"
+```
+Note that `sbt` is also designed to be used interactively. eg. do `sbt` to get an `sbt` prompt, and then type `run` at the `sbt` prompt.
 
