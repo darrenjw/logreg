@@ -12,8 +12,6 @@ import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 import scala.collection.parallel.CollectionConverters.*
 
-type DVD = DenseVector[Double]
-
 @main def par() =
   println("First read and process the data")
   val df = smile.read.parquet("../../pima.parquet")
