@@ -11,6 +11,7 @@ libraryDependencies  ++= Seq(
   //"org.scalanlp" %% "breeze" % "2.0",
   "org.scalanlp" %% "breeze-viz" % "2.0",
   //"org.scalanlp" %% "breeze-natives" % "2.0",
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
   "com.github.darrenjw" %% "scala-smfsb" % "0.9",
   "com.github.darrenjw" %% "scala-glm" % "0.7",
   ("com.github.haifengl" %% "smile-scala" % "2.6.0").cross(CrossVersion.for3Use2_13),
