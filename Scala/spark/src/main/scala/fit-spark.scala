@@ -30,18 +30,19 @@ object FitSpark {
     def s2d(s: String): Double = if (s=="Yes") 1.0 else 0.0
     def s2d_udf = udf(s2d _)
     val df2 = df.withColumn("y", s2d_udf(df.col("type"))).drop("type")
-    val df3 = new RFormula().setFormula("Type ~ .").fit(df2).
+    val df3 = new RFormula().setFormula("y ~ .").fit(df2).
       transform(df2).select("y", "features")
     println(df3 show 5)
+    println(df3.head.getAs[DenseVector](1))
     val p = 8
     def ll(beta: BDV[Double]): Double = 
       df3.map{row =>
         val y = row.getAs[Double](0)
-        val x = row.getAs[DenseVector](1)
+        val x = BDV.vertcat(BDV[Double](1.0),toBDV(row.getAs[DenseVector](1)))
         -math.log(1.0 + math.exp(-1.0*(2.0*y-1.0)*(x.dot(beta))))}.reduce(_+_)
     def lprior(beta: BDV[Double]): Double =
       Gaussian(0,10).logPdf(beta(0)) +
-        sum(beta(1 to p).map(Gaussian(0,1).logPdf(_)))
+        sum(beta(1 until p).map(Gaussian(0,1).logPdf(_)))
     def lpost(beta: BDV[Double]): Double =
       ll(beta) + lprior(beta)
     val pre = BDV[Double](10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
@@ -51,7 +52,7 @@ object FitSpark {
 
     val s = Mcmc.mhStream(init, lpost, rprop, dprop,
       (p: DoubleState) => 1.0, verb = false)
-    val out = s.drop(150).thin(10).take(10000)
+    val out = s.drop(150).thin(1).take(10000)
     println("Starting RW MH run now. Be patient...")
     //out.zipWithIndex.foreach(println)
     Mcmc.summary(out,true)
