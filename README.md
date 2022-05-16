@@ -50,5 +50,7 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 
 ### Scala
 
-* 
+The Scala examples just require a recent JVM and [sbt](). `sbt` will look after other dependencies (including Scala itself). See the Readme in the Scala directory for further info.
+
+* [fit-bayes.scala](Scala/lr/src/main/scala/fit-bayes.scala) - Random walk MH with Breeze.
 
