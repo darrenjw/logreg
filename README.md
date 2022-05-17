@@ -61,4 +61,4 @@ The Scala examples just require a recent JVM and [sbt](https://www.scala-sbt.org
 
 The Spark example requires a Spark installation in addition to `sbt`. See the [Readme](Scala/Readme.md) in the Scala directory for further info.
 
-* [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
+* [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH, with Spark being used to distribute the log-likelihood evaluation over a cluster. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
