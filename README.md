@@ -57,3 +57,8 @@ The Scala examples just require a recent JVM and [sbt](https://www.scala-sbt.org
 * [fit-par.scala](Scala/lr/src/main/scala/fit-par.scala) - Random walk MH, running in parallel on all available CPU cores. Note that the evaluation of the log-liklihood is parallelised over observations, but due to the very small size of this dataset, this version runs considerably slower than the previous version. For large datasets it will be a different story.
 * [fit-mala.scala](Scala/lr/src/main/scala/fit-mala.scala) - MALA with Breeze.
 
+#### Scala with Spark
+
+The Spark example requires a Spark installation in addition to `sbt`. See the [Readme](Scala/Readme.md) in the Scala directory for further info.
+
+* [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.

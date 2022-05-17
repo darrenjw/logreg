@@ -9,7 +9,6 @@ import smfsb._
 import breeze.stats.distributions.Gaussian
 import breeze.linalg.{DenseVector => BDV, _}
 import breeze.numerics._
-//import breeze.stats.distributions.Rand.FixedSeed.randBasis
 
 object FitSpark {
 

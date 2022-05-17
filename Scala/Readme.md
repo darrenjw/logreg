@@ -10,3 +10,9 @@ sbt "runMain rwmh"
 ```
 Note that `sbt` is also designed to be used interactively. eg. do `sbt` to get an `sbt` prompt, and then type `run` at the `sbt` prompt.
 
+## Spark example
+
+The [Apache Spark](https://spark.apache.org/) example requires a Spark installation in addition to `sbt`. Running `sbt assembly` from the `spark` subdirectory will produce a `jar` that can be submitted to a Spark cluster using `spark-submit`. See the Spark docs for more information on installing and using Spark clusters.
+
+Note that Spark is intended for working with very large datasets. On small datasets it will be *much* slower than non-Spark Scala code.
+
