@@ -54,7 +54,7 @@ object FitSpark {
       (p: DoubleState) => 1.0, verb = false)
     val out = s.drop(150).thin(1).take(10000)
     println("Starting RW MH run now. Be patient...")
-    //out.zipWithIndex.foreach(println)
+    out.zipWithIndex.foreach(println)
     Mcmc.summary(out,true)
     println("Done.")
 
