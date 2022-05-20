@@ -12,6 +12,8 @@ Here we will conduct fully Bayesian inference for the typical Bayesian [logistic
 
 *l(b; y) = -sum[log(1 + exp{-(2y - 1)(Xb)})]*
 
+$$l(b; y) = -\sum[\log(1 + \exp{-(2y - 1)(Xb)})]$$
+
 where *y* is a binary vector of responses, *X* is an *n* by *p* matrix of covariates and *b* is the *p*-vector of parameters of inferential interest.
 
 JAX can auto-diff likelihoods like this, but for comparison purposes, we will use hard-coded gradients for MALA algorithms in R, Python (with NumPy), and Scala:
