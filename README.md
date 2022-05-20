@@ -20,7 +20,7 @@ $$\nabla l(b) = X'(y-p), \quad \text{where}\quad p = (\mathbb{1} + \exp[-Xb])^{-
 
 For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of $b$. That is, $b_i ~ N(0, v_i)$. Note that the gradient of the log of this prior is
 
-$$\nabla p(b) = -b/v.$$
+$$\nabla p(b) = -b\circ v^{-1}.$$
 
 We will be analysing the "Pima" training dataset, with 200 observations and 7 predictors. Including an intercept as the first covariate gives a parameter vector of length $p=8$. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
 
