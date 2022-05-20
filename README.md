@@ -16,7 +16,7 @@ where $y$ is a binary vector of responses, $X$ is an $n$ by $p$ matrix of covari
 
 JAX can auto-diff likelihoods like this, but for comparison purposes, we will use hard-coded gradients for MALA algorithms in R, Python (with NumPy), and Scala:
 
-$$\nabla l(b) = X'(y-p), \quad \text{where}\quad p = 1/(1 + \exp[-Xb]).$$
+$$\nabla l(b) = X'(y-p), \quad \text{where}\quad p = (\mathbb{1} + \exp[-Xb])^{-1}.$$
 
 For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of $b$. That is, $b_i ~ N(0, v_i)$. Note that the gradient of the log of this prior is
 
