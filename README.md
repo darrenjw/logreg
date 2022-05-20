@@ -10,13 +10,13 @@ This repo contains code for MCMC-based fully Bayesian inference for a logistic r
 
 Here we will conduct fully Bayesian inference for the typical Bayesian [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) model for a binary outcome based on some covariates. The $i$th observation will be 1 with probability $p_i$, and the [logit](https://en.wikipedia.org/wiki/Logit) of $p_i$ will depend linearly on predictors. This leads to a log-likelihood function
 
-$$l(b; y) = -\sum[\log(1 + \exp\{-(2y - 1)(Xb)\})]$$
+$$l(b; y) = -\sum[\log(1 + \exp[-(2y - 1)(Xb)])]$$
 
 where $y$ is a binary vector of responses, $X$ is an $n$ by $p$ matrix of covariates and $b$ is the $p$-vector of parameters of inferential interest.
 
 JAX can auto-diff likelihoods like this, but for comparison purposes, we will use hard-coded gradients for MALA algorithms in R, Python (with NumPy), and Scala:
 
-$$\nabla l(b) = X'(y-p), \quad \text{where}\quad p = 1/(1 + \exp\{-Xb\}).$$
+$$\nabla l(b) = X'(y-p), \quad \text{where}\quad p = 1/(1 + \exp[-Xb]).$$
 
 For a fully Bayesian analysis, we also need a prior distribution. Here we will assume independent normal priors on the elements of $b$. That is, $b_i ~ N(0, v_i)$. Note that the gradient of the log of this prior is
 
