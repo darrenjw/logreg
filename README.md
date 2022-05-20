@@ -10,7 +10,7 @@ This repo contains code for MCMC-based fully Bayesian inference for a logistic r
 
 Here we will conduct fully Bayesian inference for the typical Bayesian [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) model for a binary outcome based on some covariates. The $i$th observation will be 1 with probability $p_i$, and the [logit](https://en.wikipedia.org/wiki/Logit) of $p_i$ will depend linearly on predictors. This leads to a log-likelihood function
 
-$$l(b; y) = -\sum[\log(1 + \exp[-(2y - 1)(Xb)])]$$
+$$l(b; y) = -\sum[\log(\mathbb{1} + \exp[-(2y - 1)(Xb)])]$$
 
 where $y$ is a binary vector of responses, $X$ is an $n$ by $p$ matrix of covariates and $b$ is the $p$-vector of parameters of inferential interest.
 
