@@ -39,8 +39,6 @@ def model(X, y):
     return numpyro.sample("obs", dist.Bernoulli(logits=logits), obs=y)
 
 rng_key = jax.random.PRNGKey(42)
-step_size = jnp.sqrt(0.1 / p)
-trajectory_length = step_size * 20
 kernel = NUTS(model)
 thin = 1
 mcmc = MCMC(kernel, num_warmup=1000, thinning=thin, num_samples=10000*thin)
