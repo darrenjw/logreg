@@ -14,6 +14,7 @@ libraryDependencies  ++= Seq(
   "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
   "com.github.darrenjw" %% "scala-smfsb" % "0.9",
   "com.github.darrenjw" %% "scala-glm" % "0.7",
+  ("com.stripe" %% "rainier-core" % "0.3.5").cross(CrossVersion.for3Use2_13),
   ("com.github.haifengl" %% "smile-scala" % "2.6.0").cross(CrossVersion.for3Use2_13),
   "org.apache.parquet" % "parquet-hadoop" % "1.10.1",  // for parquet
   "org.apache.hadoop" % "hadoop-common" % "3.1.4"      // for parquet
