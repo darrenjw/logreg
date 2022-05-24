@@ -58,10 +58,10 @@ mhKernel = function(logPost, rprop, dprop = function(new, old, ...) { 1 })
     }
     
 mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
-    p = length(init)
+    p = length(init)/2
     ll = -Inf
     mat = matrix(0, nrow = iters, ncol = p)
-    colnames(mat) = names(init)
+    colnames(mat) = names(init[1:p])
     x = init
     if (verb) 
         message(paste(iters, "iterations"))
@@ -73,7 +73,7 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
             x = pair$x
             ll = pair$ll
             }
-        mat[i, ] = x
+        mat[i, ] = x[1:p]
         }
     if (verb) 
         message("Done.")
@@ -104,7 +104,7 @@ hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
 
 out = mcmc(c(fit$par, rep(1e10, length(fit$par))),
            hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=c(100,1,1,1,1,1,25,1)),
-           thin=10)[,1:8]
+           thin=20)
 
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])
