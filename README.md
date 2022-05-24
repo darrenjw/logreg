@@ -45,7 +45,8 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 * [fit-np-mala.py](Python/fit-np-mala.py) - MALA with NumPy.
 * [fit-jax.py](Python/fit-jax.py) - RM MH with log posterior and MH kernel in JAX, but main MCMC loop in python.
 * [fit-jax2.py](Python/fit-jax2.py) - As above, but with main MCMC loop in JAX (much faster).
-* [fit-jax-mala.py](Python/fit-jax-mala.py) - JAX for MALA (with a simple diagonal pre-conditioner).
+* [fit-jax-ul.py](Python/fit-jax-ul.py) - JAX for unadjusted Langevin (with a diagonal pre-conditioner). Note that this is an approximate algorithm.
+* [fit-jax-mala.py](Python/fit-jax-mala.py) - JAX for MALA (with a diagonal pre-conditioner).
 * [fit-blackjax.py](Python/fit-blackjax.py) - RW MH using BlackJAX.
 * [fit-blackjax-mala.py](Python/fit-blackjax-mala.py) - MALA with BlackJAX. Note that the MALA kernel in BlackJAX doesn't seem to allow a pre-conditioner, so a huge thinning interval is used here to get vaguely reasonable results.
 * [fit-blackjax-nuts.py](Python/fit-blackjax-nuts.py) - NUTS sampler from BlackJAX.

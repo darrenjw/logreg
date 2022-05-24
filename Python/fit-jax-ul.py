@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# fit-jax-mala.py
-# MALA using JAX
+# fit-jax-ul.py
+# Unadjusted Langevin using JAX (approximate)
 
 import os
 import pandas as pd
@@ -82,50 +82,38 @@ print(beta)
 print(ll(beta))
 print(jnp.linalg.norm(glp(beta)))
 
-print("Next, MALA. Be patient...")
+print("Next, unadjusted Langevin (approximate). Be patient...")
 
-def mhKernel(lpost, rprop, dprop = jit(lambda new, old: 1.)):
-    @jit
-    def kernel(key, x, ll):
-        key0, key1 = jax.random.split(key)
-        prop = rprop(key0, x)
-        lp = lpost(prop)
-        a = lp - ll + dprop(x, prop) - dprop(prop, x)
-        accept = (jnp.log(jax.random.uniform(key1)) < a)
-        return jnp.where(accept, prop, x), jnp.where(accept, lp, ll)
-    return kernel
-
-def malaKernel(lpi, glpi, dt = 1e-4, pre = 1):
+def ulKernel(lpi, glpi, dt = 1e-4, pre = 1):
     p = len(init)
     sdt = jnp.sqrt(dt)
     spre = jnp.sqrt(pre)
     advance = jit(lambda x: x + 0.5*pre*glpi(x)*dt)
-    return mhKernel(lpi, jit(lambda k, x: advance(x) + jax.random.normal(k, [p])*spre*sdt),
-            jit(lambda new, old: jnp.sum(jsp.stats.norm.logpdf(new, loc=advance(old), scale=spre*sdt))))
+    @jit
+    def kernel(key, x):
+        return advance(x) + jax.random.normal(key, [p])*spre*sdt
+    return kernel
 
 def mcmc(init, kernel, thin = 10, iters = 10000):
     key = jax.random.PRNGKey(42)
     keys = jax.random.split(key, iters)
     @jit
-    def step(s, k):
-        [x, ll] = s
-        x, ll = kernel(k, x, ll)
-        s = [x, ll]
-        return s, s
+    def step(x, k):
+        x = kernel(k, x)
+        return x, x
     @jit
-    def iter(s, k):
+    def iter(x, k):
         keys = jax.random.split(k, thin)
-        _, states = jax.lax.scan(step, s, keys)
-        final = [states[0][thin-1], states[1][thin-1]]
+        _, states = jax.lax.scan(step, x, keys)
+        final = states[thin-1]
         return final, final
-    ll = -np.inf
     x = init
-    _, states = jax.lax.scan(iter, [x, ll], keys)
-    return states[0]
+    _, states = jax.lax.scan(iter, x, keys)
+    return states
 
 pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 
-out = mcmc(beta, malaKernel(lpost, glp, dt=1e-5, pre=pre), thin=1000)
+out = mcmc(beta, ulKernel(lpost, glp, dt=1e-6, pre=pre), thin=4000)
 
 print(out)
 print("Posterior summaries:")
@@ -139,21 +127,21 @@ figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
     axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("jax-mala-trace.png")
+plt.savefig("jax-ul-trace.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].hist(out[:,i], 50)
     axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("jax-mala-hist.png")
+plt.savefig("jax-ul-hist.png")
 #plt.show()
 
 figure, axis = plt.subplots(4, 2)
 for i in range(8):
     axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
     axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("jax-mala-acf.png")
+plt.savefig("jax-ul-acf.png")
 #plt.show()
 
 
