@@ -33,6 +33,7 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 * [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
 * [fit-ul.R](R/fit-ul.R) - Unadjusted Langevin in R (with a simple diagonal pre-conditioner). Note that this algorithm is *approximate*, so we wouldn't expect it to match up perfectly with the exact sampling methods.
 * [fit-mala.R](R/fit-mala.R) - MALA in R (with a diagonal pre-conditioner).
+* [fit-hmc.R](R/fit-hmc.R) - HMC in R (with a diagonal mass-matrix).
 * [fit-rjags.R](R/fit-rjags.R) - Fit using rjags. Note that this script probably won't work unless a site-wide installation of JAGS is available. 
 * [fit-rstan.R](R/fit-rstan.R) - Fit using rstan.
 
