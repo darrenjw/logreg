@@ -31,7 +31,8 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 * [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's now the 21st Century).
 * [fit-glm.R](R/fit-glm.R) - kick-off with a simple GLM fit in R for sanity-checking purposes.
 * [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
-* [fit-mala.R](R/fit-mala.R) - MALA in R (with a simple diagonal pre-conditioner).
+* [fit-ul.R](R/fit-ul.R) - Unadjusted Langevin in R (with a simple diagonal pre-conditioner). Note that this algorithm is *approximate*, so we wouldn't expect it to match up perfectly with the exact sampling methods.
+* [fit-mala.R](R/fit-mala.R) - MALA in R (with a diagonal pre-conditioner).
 * [fit-rjags.R](R/fit-rjags.R) - Fit using rjags. Note that this script probably won't work unless a site-wide installation of JAGS is available. 
 * [fit-rstan.R](R/fit-rstan.R) - Fit using rstan.
 
