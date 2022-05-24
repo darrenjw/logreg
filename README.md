@@ -41,6 +41,7 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 These scripts assume a Python installation with [NumPy](https://numpy.org/) and [SciPy](https://scipy.org/). The later scripts require [JAX](https://jax.readthedocs.io/). The BlackJAX scripts require [BlackJAX](https://blackjax-devs.github.io/blackjax/), the NumPyro script requires [NumPyro](https://github.com/pyro-ppl/numpyro), and the PyMC3 script requires [PyMC3](https://docs.pymc.io/en/v3/). These can be `pip` installed for basic use. See the websites for more detailed information.
 
 * [fit-numpy.py](Python/fit-numpy.py) - Random walk MH with NumPy.
+* [fit-np-ul.py](Python/fit-np-ul.py) - Unadjusted Langevin with NumPy (approximate).
 * [fit-np-mala.py](Python/fit-np-mala.py) - MALA with NumPy.
 * [fit-jax.py](Python/fit-jax.py) - RM MH with log posterior and MH kernel in JAX, but main MCMC loop in python.
 * [fit-jax2.py](Python/fit-jax2.py) - As above, but with main MCMC loop in JAX (much faster).
