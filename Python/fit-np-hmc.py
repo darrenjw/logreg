@@ -70,7 +70,7 @@ def hmcKernel(lpi, glpi, eps = 1e-4, l=10, dmm = 1):
         p = np.random.randn(len(q))*sdmm
         p = p + 0.5*eps*glpi(q)
         for i in range(l):
-            q = q + eps*p
+            q = q + eps*p/dmm
             if (i < l-1):
                 p = p + eps*glpi(q)
             else:
@@ -101,7 +101,7 @@ def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
 pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 
 out = mcmc(np.concatenate((res.x, 1e10*np.ones((len(res.x))))),
-           hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=pre), thin=20)
+           hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/pre), thin=20)
 
 print(out)
 print("Posterior summaries:")

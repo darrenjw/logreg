@@ -86,7 +86,7 @@ hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
         p = rnorm(length(q), 0, sdmm)
         p = p + 0.5*eps*glpi(q)
         for (i in 1:l) {
-            q = q + eps*p
+            q = q + eps*p/dmm
             if (i < l)
                 p = p + eps*glpi(q)
             else
@@ -103,7 +103,7 @@ hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
 }
 
 out = mcmc(c(fit$par, rep(1e10, length(fit$par))),
-           hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=c(100,1,1,1,1,1,25,1)),
+           hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/c(100,1,1,1,1,1,25,1)),
            thin=20)
 
 mcmcSummary(out)
