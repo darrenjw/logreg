@@ -59,11 +59,12 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 
 The Scala examples just require a recent JVM and [sbt](https://www.scala-sbt.org/). `sbt` will look after other dependencies (including Scala itself). See the [Readme](Scala/Readme.md) in the Scala directory for further info.
 
-* [fit-bayes.scala](Scala/lr/src/main/scala/fit-bayes.scala) - Random walk MH with Breeze.
+* [fit-bayes.scala](Scala/lr/src/main/scala/fit-bayes.scala) - Random walk MH with Scala and Breeze.
 * [fit-nopar.scala](Scala/lr/src/main/scala/fit-nopar.scala) - Random walk MH, re-factored to make it easy to run in parallel, but still serial.
 * [fit-par.scala](Scala/lr/src/main/scala/fit-par.scala) - Random walk MH, running in parallel on all available CPU cores. Note that the evaluation of the log-likelihood is parallelised over observations, but due to the very small size of this dataset, this version runs considerably slower than the previous version. For large datasets it will be a different story.
 * [fit-ul.scala](Scala/lr/src/main/scala/fit-ul.scala) - Unadjusted Langevin with Breeze (approximate).
 * [fit-mala.scala](Scala/lr/src/main/scala/fit-mala.scala) - MALA with Breeze.
+* [fit-hmc.scala](Scala/lr/src/main/scala/fit-hmc.scala) - HMC with Breeze.
 
 #### Scala with Spark
 
