@@ -37,12 +37,10 @@ import smile.data.pimpDataFrame
     ll(beta) + lprior(beta)
   val pre = DenseVector(10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
   def rprop(beta: DoubleState): DoubleState = beta + pre *:* (DenseVector(Gaussian(0.0,0.02).sample(p).toArray))
-  def dprop(n: DoubleState, o: DoubleState): Double = 1.0
   val init = DenseVector(-9.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
-  val s = Mcmc.mhStream(init, lpost, rprop, dprop,
-    (p: DoubleState) => 1.0, verb = false)
+  val kern = mhKernel(lpost, rprop)
+  val s = LazyList.iterate((init, -Inf))(kern) map (_._1)
   val out = s.drop(150).thin(1000).take(10000)
   println("Starting RW MH run now. Be patient...")
-  //out.zipWithIndex.foreach(println)
   Mcmc.summary(out,true)
   println("Done.")

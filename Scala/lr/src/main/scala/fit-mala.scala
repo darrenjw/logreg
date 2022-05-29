@@ -11,6 +11,19 @@ import breeze.stats.distributions.Gaussian
 import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 
+def malaKernel(lpi: DVD => Double, glpi: DVD => DVD, pre: DVD, dt: Double = 1e-4) =
+  val sdt = math.sqrt(dt)
+  val spre = sqrt(pre)
+  val p = pre.length
+  def advance(beta: DVD): DVD =
+    beta + (0.5*dt)*(pre*:*glpi(beta))
+  def rprop(beta: DVD): DVD =
+    advance(beta) + sdt*spre.map(Gaussian(0,_).sample())
+  def dprop(n: DVD, o: DVD): Double = 
+    val ao = advance(o)
+    (0 until p).map(i => Gaussian(ao(i), spre(i)*sdt).logPdf(n(i))).sum
+  mhKernel(lpi, rprop, dprop)
+
 @main def mala() =
   println("First read and process the data")
   val df = smile.read.parquet("../../pima.parquet")
@@ -46,21 +59,10 @@ import smile.data.pimpDataFrame
     val gll = (X.t)*(y - ones/:/(ones + exp(-X*beta)))
     glpr + gll
   println(glp(lr.coefficients))
-  val dt = 1e-5 // set dt here
-  val sdt = math.sqrt(dt)
-  val spre = DenseVector(10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
-  val pre = spre *:* spre
-  def advance(beta: DVD): DVD =
-    beta + (0.5*dt)*(pre*:*glp(beta))
-  def rprop(beta: DoubleState): DoubleState =
-    advance(beta) + sdt*spre.map(Gaussian(0,_).sample())
-  def dprop(n: DoubleState, o: DoubleState): Double = 
-    val ao = advance(o)
-    (0 until p).map(i => Gaussian(ao(i), spre(i)*sdt).logPdf(n(i))).sum
-  val s = Mcmc.mhStream(lr.coefficients, lpost, rprop, dprop,
-    (p: DoubleState) => 1.0, verb = false)
+  val pre = DenseVector(100.0,1.0,1.0,1.0,1.0,1.0,25.0,1.0)
+  val kern = malaKernel(lpost, glp, pre, dt = 1e-5)
+  val s = LazyList.iterate((lr.coefficients, -Inf))(kern) map (_._1)
   val out = s.drop(150).thin(1000).take(10000)
   println("Starting MALA run now. Be patient...")
-  //out.zipWithIndex.foreach(println)
-  Mcmc.summary(out,true)
+  Mcmc.summary(out, true)
   println("Done.")
