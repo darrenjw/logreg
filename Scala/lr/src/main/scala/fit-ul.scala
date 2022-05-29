@@ -11,8 +11,6 @@ import breeze.stats.distributions.Gaussian
 import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 
-type DVD = DenseVector[Double]
-
 @main def ul() =
   println("First read and process the data")
   val df = smile.read.parquet("../../pima.parquet")
