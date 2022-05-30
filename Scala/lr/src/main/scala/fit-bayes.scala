@@ -13,8 +13,10 @@ import smile.data.pimpDataFrame
 
 type DVD = DenseVector[Double]
 
-def mhKernel(logPost: DVD => Double, rprop: DVD => DVD,
-  dprop: (DVD, DVD) => Double = (n, o) => 1.0): ((DVD, Double)) => (DVD, Double) =
+def mhKernel[S](
+    logPost: S => Double, rprop: S => S,
+    dprop: (S, S) => Double = (n: S, o: S) => 1.0
+  ): ((S, Double)) => (S, Double) =
     val r = Uniform(0.0,1.0)
     state =>
       val (x0, ll0) = state
