@@ -12,6 +12,29 @@ import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 import annotation.tailrec
 
+def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
+  eps: Double = 1e-4, l: Int = 10) =
+  val sdmm = sqrt(dmm)
+  def leapf(q: DVD): DVD = 
+    val p = sdmm map (sd => Gaussian(0,sd).draw())
+    @tailrec def go(q0: DVD, p0: DVD, l: Int): DVD =
+      val q = q0 + eps*(p0/:/dmm)
+      val p = if (l > 0)
+        p0 + eps*glpi(q)
+      else
+        p0 + 0.5*eps*glpi(q)
+      if (l == 1)
+        DenseVector.vertcat(q, -p)
+      else
+        go(q, p, l-1)
+    go(q, p + 0.5*eps*glpi(q), l)
+  def rprop(x: DVD): DVD =
+    leapf(x(0 until (x.length/2)))
+  def alpi(x: DVD): Double =
+    val d = x.length/2
+    lpi(x(0 until d)) - 0.5*sum(pow(x(d until 2*d),2) /:/ dmm)
+  mhKernel(alpi, rprop)
+
 @main def hmc() =
   println("First read and process the data")
   val df = smile.read.parquet("../../pima.parquet")
@@ -47,35 +70,11 @@ import annotation.tailrec
     val gll = (X.t)*(y - ones/:/(ones + exp(-X*beta)))
     glpr + gll
   println(glp(lr.coefficients))
-  def hmcProp(glpi: DVD => DVD, dmm: DVD,
-    eps: Double = 1e-4, l: Int = 10): DVD => DVD =
-    val sdmm = sqrt(dmm)
-    def leapf(q: DVD): DVD = 
-      val p = sdmm map (sd => Gaussian(0,sd).draw())
-      @tailrec def go(q0: DVD, p0: DVD, l: Int): DVD =
-        val q = q0 + eps*(p0/:/dmm)
-        val p = if (l > 0)
-          p0 + eps*glpi(q)
-        else
-          p0 + 0.5*eps*glpi(q)
-        if (l == 1)
-          DenseVector.vertcat(q, -p)
-        else
-          go(q, p, l-1)
-      go(q, p + 0.5*eps*glpi(q), l)
-    (x: DVD) => leapf(x(0 until (x.length/2)))
-  def hmcLp(dmm: DVD)(x: DVD): Double =
-    val d = x.length/2
-    lpost(x(0 until d)) - 0.5*sum(pow(x(d until 2*d),2) /:/ dmm)
-  val spre = DenseVector(10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
-  val pre = spre *:* spre
-  val s = Mcmc.mhStream(DenseVector.vertcat(lr.coefficients, 1e10*DenseVector.ones[Double](pre.length)),
-    hmcLp(1.0 / pre),
-    hmcProp(glp, 1.0 / pre, eps=1e-3, l=50),
-    (p0: DoubleState, p1: DoubleState) => 1.0,
-    (p: DoubleState) => 1.0, verb = false)
+  val pre = DenseVector(100.0,1.0,1.0,1.0,1.0,1.0,25.0,1.0)
+  val kern = hmcKernel(lpost, glp, 1.0 / pre, eps=1e-3, l=50)
+  val s = LazyList.iterate((DenseVector.vertcat(lr.coefficients,
+    1e10*DenseVector.ones[Double](pre.length)), -Inf))(kern) map (_._1)
   val out = s.drop(150).thin(20).map(x => x(0 until pre.length)).take(10000)
   println("Starting HMC run now. Be patient...")
-  //out.zipWithIndex.foreach(println)
   Mcmc.summary(out,true)
   println("Done.")
