@@ -16,3 +16,7 @@ The [Apache Spark](https://spark.apache.org/) example requires a Spark installat
 
 Note that Spark is intended for working with very large datasets. On small datasets it will be *much* slower than non-Spark Scala code.
 
+## Learning more about Scala
+
+If you want to learn more about [Scala](https://www.scala-lang.org/), the (free) on-line video series, [Scala at light speed](https://www.youtube.com/playlist?list=PLmtsMNDRU0BxryRX4wiwrTZ661xcp6VPM) from [Rock the JVM](https://rockthejvm.com/) is quite a good place to start. For more on scientific and statistical computing, follow up with my on-line course, [Scala for statistical computing and data science](https://github.com/darrenjw/scala-course/blob/master/StartHere.md).
+
