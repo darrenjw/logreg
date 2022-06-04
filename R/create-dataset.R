@@ -6,6 +6,9 @@ pacman::p_load("MASS", "arrow")
 
 write_parquet(Pima.tr, file.path("..", "pima.parquet"))
 
+## Also save in a simple text format for primitive languages...
+write.table(Pima.tr, file.path("..", "pima.data"),
+            row.names=FALSE, col.names=FALSE, quote=FALSE)
 
 ## eof
 
