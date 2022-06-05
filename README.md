@@ -6,7 +6,7 @@
 
 This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/) and [Scala](https://www.scala-lang.org/), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
 
-I intend to very soon add similar examples in a few other languages (possibly [Julia](https://julialang.org/), [Haskell](https://www.haskell.org/), [DEX](https://github.com/google-research/dex-lang) and [C](https://en.wikipedia.org/wiki/C_(programming_language))), and using a few other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
+I intend to very soon add similar examples in a few other languages (possibly [Julia](https://julialang.org/), [Haskell](https://www.haskell.org/) and [DEX](https://github.com/google-research/dex-lang)), and using a few other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
 
 ## The model
 
