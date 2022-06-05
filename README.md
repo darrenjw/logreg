@@ -80,6 +80,7 @@ The Julia examples depend only on standard packages as part of the Julia package
 
 * [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
 * [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.
+* [fit-mala-ad.jl](Julia/fit-mala-ad.jl) - MALA in Julia, with AD gradients via Zygote. Note that this is much slower than using hard-coded gradients.
 
 ### C
 
