@@ -30,7 +30,7 @@ We will be analysing the "Pima" training dataset, with 200 observations and 7 pr
 
 Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pacman/) to download and install any missing dependencies.
 
-* [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's now the 21st Century).
+* [create-dataset.R](R/create-dataset.R) - we will use the infamous `MASS::Pima.tr` dataset, exported from R in [parquet](https://parquet.apache.org/) format (rather than CSV, as it's now the 21st Century, but also save in a simple text format for languages that can't easily read parquet...).
 * [fit-glm.R](R/fit-glm.R) - kick-off with a simple GLM fit in R for sanity-checking purposes.
 * [fit-bayes.R](R/fit-bayes.R) - MAP, followed by a Random walk Metropolis MCMC sampler in R.
 * [fit-ul.R](R/fit-ul.R) - Unadjusted Langevin in R (with a simple diagonal pre-conditioner). Note that this algorithm is *approximate*, so we wouldn't expect it to match up perfectly with the exact sampling methods.
