@@ -14,8 +14,6 @@ ll(beta) = sum(-log.(1.0 .+ exp.(-(2*y .- 1.0).*(x * beta))))
 
 lpost(beta) = lprior(beta) + ll(beta)
 
-pscale = [10.0, 1, 1, 1, 1, 1, 1, 1]
-
 function malaKernel(lpi, dt, pre)
     sdt = sqrt(dt)
     spre = sqrt.(pre)
