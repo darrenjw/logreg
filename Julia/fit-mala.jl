@@ -1,8 +1,5 @@
-# fit-bayes.jl
-# Fit Bayesian logistic regression using RW MH MCMC in Julia
-
-# Should I use Julia? Maybe, maybe not...  https://yuri.is/not-julia/
-
+# fit-mala.jl
+# Fit Bayesian logistic regression using MALA MCMC in Julia
 
 using ParquetFiles, DataFrames, Random, Distributions, Plots, StatsBase
 
@@ -17,11 +14,32 @@ ll(beta) = sum(-log.(1.0 .+ exp.(-(2*y .- 1.0).*(x * beta))))
 
 lpost(beta) = lprior(beta) + ll(beta)
 
-function mhKernel(logPost, rprop)
+pscale = [10.0, 1, 1, 1, 1, 1, 1, 1]
+
+function glp(beta)
+    glpr = -beta ./ (pscale .* pscale)
+    gll = transpose(x) * (y .- (1.0 ./ (1.0 .+ exp.(-x * beta))))
+    glpr + gll
+end
+
+function malaKernel(lpi, glpi, dt, pre)
+    sdt = sqrt(dt)
+    spre = sqrt.(pre)
+    norm = Normal(0,1)
+    advance(x) = x .+ ( (0.5 * dt) .* (pre .* glpi(x)) )
+    function dprop(n, o)
+        ao = advance(o)
+        sum( map((i) -> logpdf(Normal(ao[i], spre[i]*sdt), n[i]), 1:8) )
+    end
+    mhKernel(lpi, x -> advance(x) .+ rand!(rng, norm, zeros(8)).*spre.*sdt,
+             dprop)
+end
+
+function mhKernel(logPost, rprop, dprop)
     function kern(x, ll)
         prop = rprop(x)
         llprop = logPost(prop)
-        a = llprop - ll
+        a = llprop - ll + dprop(x, prop) - dprop(prop, x)
         if (log(rand(rng)) < a)
             return (prop, llprop)
         else
@@ -47,7 +65,6 @@ function mcmc(init, kernel, iters, thin)
     mat
 end
 
-
 # Main execution thread
 
 # Load and process the data
@@ -62,18 +79,18 @@ beta = zeros(8, 1)
 beta[1] = -10
 rng = MersenneTwister(1234)
 norm = Normal(0, 0.02)
-kern = mhKernel(lpost, x ->
-                vcat( x[1]+rand(rng, norm)*10, x[2:8]+rand!(rng, norm, zeros(7))))
+kern = malaKernel(lpost, glp, 1e-5, [100.0, 1, 1, 1, 1, 1, 25, 1])
+                  
 # Main MCMC loop
 out = mcmc(beta, kern, 10000, 1000)
 
 # Plot results
 plot(1:10000, out, layout=(4, 2))
-savefig("trace.pdf")
+savefig("trace-mala.pdf")
 histogram(out, layout=(4, 2))
-savefig("hist.pdf")
+savefig("hist-mala.pdf")
 plot(1:400, autocor(out, 1:400), layout = (4, 2))
-savefig("acf.pdf")
-
+savefig("acf-mala.pdf")
 
 # eof
+
