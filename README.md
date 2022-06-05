@@ -79,7 +79,7 @@ The Spark example requires a Spark installation in addition to `sbt`. See the [R
 The Julia examples depend only on standard packages as part of the Julia package ecosystem that are easy to install.
 
 * [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
-* [fit-mala.jl](Julia/fit-bayes.jl) - MALA in Julia, with hard-coded gradients.
+* [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.
 
 ### C
 
