@@ -74,6 +74,12 @@ The Spark example requires a Spark installation in addition to `sbt`. See the [R
 
 * [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH, with Spark being used to distribute the log-likelihood evaluation over a cluster. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
 
+### C
+
+The C examples assume a Unix-like development environment. See the [Readme](C/Readme.md) in the C directory for further info.
+
+* [fit-bayes.c](C/fit-bayes.c) - Random walk MH with C and the GSL. The code isn't pretty, but it's fast (in particular, there are no allocations in the main MCMC loop). But still not as fast as JAX, even on a single core.
+
 
 
 **Copyright (C) 2022, Darren J Wilkinson**, but released under a GPL-3.0 license
