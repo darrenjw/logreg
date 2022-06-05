@@ -4,9 +4,9 @@
 
 **This repo is a work-in-progress. Once it is reasonably complete, I'll write a post or two about it over on my [blog](https://darrenjw.wordpress.com/).**
 
-This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/) and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
+This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/), [Julia](https://julialang.org/) and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
 
-I intend to very soon add similar examples in a few other languages (possibly [Julia](https://julialang.org/), [Haskell](https://www.haskell.org/) and [DEX](https://github.com/google-research/dex-lang)), and using a few other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
+I intend to very soon add similar examples in a few other languages (possibly [Haskell](https://www.haskell.org/) and [DEX](https://github.com/google-research/dex-lang)), and using a few other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
 
 ## The model
 
@@ -73,6 +73,12 @@ The Scala examples just require a recent JVM and [sbt](https://www.scala-sbt.org
 The Spark example requires a Spark installation in addition to `sbt`. See the [Readme](Scala/Readme.md) in the Scala directory for further info.
 
 * [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH, with Spark being used to distribute the log-likelihood evaluation over a cluster. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
+
+### Julia
+
+The Julia examples depend only on standard packages as part of the Julia package ecosystem that are easy to install.
+
+* [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
 
 ### C
 
