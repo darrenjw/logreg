@@ -76,7 +76,7 @@ The Spark example requires a Spark installation in addition to `sbt`. See the [R
 
 ### Julia
 
-The Julia examples depend only on standard packages which are part of the Julia package ecosystem, and are therefore very easy to install.
+The Julia examples depend only on standard packages which are part of the Julia package ecosystem, and are therefore easy to `add`, in principle. But in my limited experience, package dependency conflicts are even more of a problem in Julia than they are in Python, and that's saying something.
 
 * [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
 * [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.

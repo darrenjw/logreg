@@ -1,6 +1,6 @@
 # Scala code for MCMC for logistic regression
 
-The Scala examples require a recent JVM and [sbt](https://www.scala-sbt.org/) to run. Typing `sbt run` from the `lr` subdirectory (not this directory) should download missing dependencies and run the examples.
+The Scala examples require a recent JVM and [sbt](https://www.scala-sbt.org/) to run. Typing `sbt run` from the `lr` subdirectory (not this directory) should download missing dependencies and run the examples. Note that having sane package dependency management and resolution is one of the many advantages of working in Scala (and on the JVM, more generally). The code for these examples should continue to build and run without problems for many years, irrespective of any developments in the libraries that the code depends on.
 
 See the `sbt` web page for installation instructions. But also note that [coursier](https://get-coursier.io/) can be used to install a complete Scala development environment (including JVMs, `sbt`, the Scala compiler, etc.), so that is also worth considering.
 
