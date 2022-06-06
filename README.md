@@ -53,6 +53,7 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 * [fit-jax2.py](Python/fit-jax2.py) - As above, but with main MCMC loop in JAX (much faster).
 * [fit-jax-ul.py](Python/fit-jax-ul.py) - JAX for unadjusted Langevin (with a diagonal pre-conditioner). Note that this is an approximate algorithm. Note also that JAX AD is being used for gradients.
 * [fit-jax-mala.py](Python/fit-jax-mala.py) - JAX for MALA (with a diagonal pre-conditioner). JAX AD for gradients.
+* [fit-jax-hmc.py](Python/fit-jax-hmc.py) - JAX for HMC (with a diagonal mass-matrix). JAX AD for gradients.
 * [fit-blackjax.py](Python/fit-blackjax.py) - RW MH using BlackJAX.
 * [fit-blackjax-mala.py](Python/fit-blackjax-mala.py) - MALA with BlackJAX. Note that the MALA kernel in BlackJAX doesn't seem to allow a pre-conditioner, so a huge thinning interval is used here to get vaguely reasonable results.
 * [fit-blackjax-nuts.py](Python/fit-blackjax-nuts.py) - NUTS sampler from BlackJAX.
