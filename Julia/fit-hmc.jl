@@ -1,7 +1,7 @@
-# fit-mala-ad.jl
-# Fit Bayesian logistic regression using MALA MCMC in Julia
+# fit-hmc.jl
+# Fit Bayesian logistic regression using HMC in Julia
 
-using ParquetFiles, DataFrames, Random, Distributions, Plots, StatsBase, Zygote
+using ParquetFiles, DataFrames, Random, Distributions, Plots, StatsBase
 
 # Define some functions
 
@@ -14,25 +14,41 @@ ll(beta) = sum(-log.(1.0 .+ exp.(-(2*y .- 1.0).*(x * beta))))
 
 lpost(beta) = lprior(beta) + ll(beta)
 
-function malaKernel(lpi, dt, pre)
-    sdt = sqrt(dt)
-    spre = sqrt.(pre)
-    glpi = lpi' # use Zygote to AD the gradient...
-    norm = Normal(0,1)
-    advance(x) = x .+ ( (0.5 * dt) .* (pre .* glpi(x)) )
-    function dprop(n, o)
-        ao = advance(o)
-        sum( map((i) -> logpdf(Normal(ao[i], spre[i]*sdt), n[i]), 1:8) )
-    end
-    mhKernel(lpi, x -> advance(x) .+ rand!(rng, norm, zeros(8)).*spre.*sdt,
-             dprop)
+pscale = [10.0, 1, 1, 1, 1, 1, 1, 1]
+
+function glp(beta)
+    glpr = -beta ./ (pscale .* pscale)
+    gll = transpose(x) * (y .- (1.0 ./ (1.0 .+ exp.(-x * beta))))
+    glpr + gll
 end
 
-function mhKernel(logPost, rprop, dprop)
+function hmcKernel(lpi, glpi, eps, l, dmm)
+    d = length(dmm)
+    sdmm = sqrt.(dmm)
+    norm = Normal(0,1)
+    function leapf(q)
+        p = rand!(rng, norm, zeros(d)).*sdmm
+        p = p .+ (0.5*eps).*glpi(q)
+        for i in 1:l
+            q = q .+ eps.*(p./dmm)
+            if (i < l)
+                p = p .+ eps.*glpi(q)
+            else
+                p = p .+ (0.5*eps).*glpi(q)
+            end
+        end
+        vcat(q, -p)
+    end
+    alpi(x) = lpi(x[1:d]) - 0.5*sum((x[(d+1):(2*d)].^2)./dmm)
+    rprop(x) = leapf(x[1:d])
+    mhKernel(alpi, rprop)
+end
+
+function mhKernel(logPost, rprop)
     function kern(x, ll)
         prop = rprop(x)
         llprop = logPost(prop)
-        a = llprop - ll + dprop(x, prop) - dprop(prop, x)
+        a = llprop - ll
         if (log(rand(rng)) < a)
             return (prop, llprop)
         else
@@ -43,7 +59,7 @@ function mhKernel(logPost, rprop, dprop)
 end
 
 function mcmc(init, kernel, iters, thin)
-    p = length(init)
+    p = length(beta)
     ll = -Inf
     mat = zeros(iters, p)
     x = init
@@ -52,7 +68,7 @@ function mcmc(init, kernel, iters, thin)
         for j in 1:thin
             x, ll = kernel(x, ll)
         end
-        mat[i,:] = x
+        mat[i,:] = x[1:p]
     end
     println(".")
     mat
@@ -72,18 +88,18 @@ beta = zeros(8, 1)
 beta[1] = -10
 rng = MersenneTwister(1234)
 norm = Normal(0, 0.02)
-kern = malaKernel(lpost, 1e-5, [100.0, 1, 1, 1, 1, 1, 25, 1])
+kern = hmcKernel(lpost, glp, 1e-3, 50, 1 ./ [100.0, 1, 1, 1, 1, 1, 25, 1])
                   
 # Main MCMC loop
-out = mcmc(beta, kern, 10000, 1000)
+out = mcmc(vcat(beta, fill(1e10, length(beta))), kern, 10000, 20)
 
 # Plot results
 plot(1:10000, out, layout=(4, 2))
-savefig("trace-mala-ad.pdf")
+savefig("trace-hmc.pdf")
 histogram(out, layout=(4, 2))
-savefig("hist-mala-ad.pdf")
+savefig("hist-hmc.pdf")
 plot(1:400, autocor(out, 1:400), layout = (4, 2))
-savefig("acf-mala-ad.pdf")
+savefig("acf-hmc.pdf")
 
 # eof
 

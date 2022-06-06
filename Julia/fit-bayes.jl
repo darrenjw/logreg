@@ -32,7 +32,7 @@ function mhKernel(logPost, rprop)
 end
 
 function mcmc(init, kernel, iters, thin)
-    p = length(beta)
+    p = length(init)
     ll = -Inf
     mat = zeros(iters, p)
     x = init

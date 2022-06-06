@@ -26,6 +26,7 @@ $$\nabla p(b) = -b\circ v^{-1}.$$
 
 We will be analysing the "Pima" training dataset, with 200 observations and 7 predictors. Including an intercept as the first covariate gives a parameter vector of length $p=8$. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
 
+
 ### R
 
 Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pacman/) to download and install any missing dependencies.
@@ -38,6 +39,7 @@ Note that these scripts use [pacman](https://cran.r-project.org/web/packages/pac
 * [fit-hmc.R](R/fit-hmc.R) - HMC in R (with a diagonal mass-matrix).
 * [fit-rjags.R](R/fit-rjags.R) - Fit using rjags. Note that this script probably won't work unless a site-wide installation of JAGS is available. 
 * [fit-rstan.R](R/fit-rstan.R) - Fit using rstan.
+
 
 ### Python
 
@@ -57,6 +59,7 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 * [fit-numpyro.py](Python/fit-numpyro.py) - NUTS sampler from NumPyro.
 * [fit-pymc3.py](Python/fit-pymc3.py) - NUTS sampler from PyMC3.
 
+
 ### Scala
 
 The Scala examples just require a recent JVM and [sbt](https://www.scala-sbt.org/). `sbt` will look after other dependencies (including Scala itself). See the [Readme](Scala/Readme.md) in the Scala directory for further info.
@@ -74,6 +77,7 @@ The Spark example requires a Spark installation in addition to `sbt`. See the [R
 
 * [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH, with Spark being used to distribute the log-likelihood evaluation over a cluster. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
 
+
 ### Julia
 
 The Julia examples depend only on standard packages which are part of the Julia package ecosystem, and are therefore easy to `add`, in principle. But in my limited experience, package dependency conflicts are even more of a problem in Julia than they are in Python, and that's saying something.
@@ -81,12 +85,16 @@ The Julia examples depend only on standard packages which are part of the Julia 
 * [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
 * [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.
 * [fit-mala-ad.jl](Julia/fit-mala-ad.jl) - MALA in Julia, with AD gradients via Zygote. Note that this is much slower than using hard-coded gradients.
+* [fit-hmc.jl](Julia/fit-hmc.jl) - HMC in Julia
+
 
 ### C
 
 The C examples assume a Unix-like development environment. See the [Readme](C/Readme.md) in the C directory for further info.
 
 * [fit-bayes.c](C/fit-bayes.c) - Random walk MH with C and the GSL. The code isn't pretty, but it's fast (in particular, there are no allocations in the main MCMC loop). But still not as fast as JAX, even on a single core.
+
+
 
 
 
