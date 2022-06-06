@@ -26,8 +26,7 @@ function hmcKernel(lpi, glpi, eps, l, dmm)
     d = length(dmm)
     sdmm = sqrt.(dmm)
     norm = Normal(0,1)
-    function leapf(q)
-        p = rand!(rng, norm, zeros(d)).*sdmm
+    function leapf(q, p)
         p = p .+ (0.5*eps).*glpi(q)
         for i in 1:l
             q = q .+ eps.*(p./dmm)
@@ -40,35 +39,38 @@ function hmcKernel(lpi, glpi, eps, l, dmm)
         vcat(q, -p)
     end
     alpi(x) = lpi(x[1:d]) - 0.5*sum((x[(d+1):(2*d)].^2)./dmm)
-    rprop(x) = leapf(x[1:d])
-    mhKernel(alpi, rprop)
+    rprop(x) = leapf(x[1:d], x[(d+1):(2*d)])
+    mhk = mhKernel(alpi, rprop)
+    function (q)
+        p = rand!(rng, norm, zeros(d)).*sdmm
+        mhk(vcat(q, -p))[1:d]
+    end
 end
 
 function mhKernel(logPost, rprop)
-    function kern(x, ll)
+    function kern(x)
         prop = rprop(x)
-        llprop = logPost(prop)
-        a = llprop - ll
+        a = logPost(prop) - logPost(x)
         if (log(rand(rng)) < a)
-            return (prop, llprop)
+            return prop
         else
-            return (x, ll)
+            return x
         end
     end
     kern
 end
 
 function mcmc(init, kernel, iters, thin)
-    p = length(beta)
+    p = length(init)
     ll = -Inf
     mat = zeros(iters, p)
     x = init
     for i in 1:iters
         print(i); print(" ")
         for j in 1:thin
-            x, ll = kernel(x, ll)
+            x = kernel(x)
         end
-        mat[i,:] = x[1:p]
+        mat[i,:] = x
     end
     println(".")
     mat
@@ -91,7 +93,7 @@ norm = Normal(0, 0.02)
 kern = hmcKernel(lpost, glp, 1e-3, 50, 1 ./ [100.0, 1, 1, 1, 1, 1, 25, 1])
                   
 # Main MCMC loop
-out = mcmc(vcat(beta, fill(1e10, length(beta))), kern, 10000, 20)
+out = mcmc(beta, kern, 10000, 20)
 
 # Plot results
 plot(1:10000, out, layout=(4, 2))
