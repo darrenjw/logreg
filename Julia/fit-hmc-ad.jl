@@ -1,4 +1,4 @@
-# fit-hmc.jl
+# fit-hmc-ad.jl
 # Fit Bayesian logistic regression using HMC in Julia
 
 using ParquetFiles, DataFrames, Random, Distributions, Plots, StatsBase, Zygote
