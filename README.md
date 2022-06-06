@@ -85,7 +85,8 @@ The Julia examples depend only on standard packages which are part of the Julia 
 * [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
 * [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.
 * [fit-mala-ad.jl](Julia/fit-mala-ad.jl) - MALA in Julia, with AD gradients via Zygote. Note that this is much slower than using hard-coded gradients.
-* [fit-hmc.jl](Julia/fit-hmc.jl) - HMC in Julia
+* [fit-hmc.jl](Julia/fit-hmc.jl) - HMC in Julia.
+* [fit-hmc-ad.jl](Julia/fit-hmc-ad.jl) - HMC in Julia, using AD for gradients. Again, this is much slower than using hard-coded gradients.
 
 
 ### C
