@@ -53,21 +53,18 @@ print(glp(res.x))
 
 print("HMC:")
 
-def mhKernel(lpost, rprop, dprop = lambda new, old: 1.):
-    def kernel(x, ll):
+def mhKernel(lpost, rprop):
+    def kernel(x):
         prop = rprop(x)
-        lp = lpost(prop)
-        a = lp - ll + dprop(x, prop) - dprop(prop, x)
+        a = lpost(prop) - lpost(x)
         if (np.log(np.random.rand()) < a):
             x = prop
-            ll = lp
-        return x, ll
+        return x
     return kernel
         
 def hmcKernel(lpi, glpi, eps = 1e-4, l=10, dmm = 1):
     sdmm = np.sqrt(dmm)
-    def leapf(q):
-        p = np.random.randn(len(q))*sdmm
+    def leapf(q, p):    
         p = p + 0.5*eps*glpi(q)
         for i in range(l):
             q = q + eps*p/dmm
@@ -79,11 +76,18 @@ def hmcKernel(lpi, glpi, eps = 1e-4, l=10, dmm = 1):
     def alpi(x):
         d = len(x) // 2
         return lpi(x[range(d)]) - 0.5*np.sum((x[range(d,2*d)]**2)/dmm)
-    return mhKernel(alpi, lambda x: leapf(x[range(len(x)//2)]))
+    def rprop(x):
+        d = len(x) // 2
+        return leapf(x[range(d)], x[range(d, 2*d)])
+    mhk = mhKernel(alpi, rprop)
+    def kern(q):
+        d = len(q)
+        x = np.concatenate((q, np.random.randn(d)*sdmm))
+        return mhk(x)[range(d)]
+    return kern
     
 def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
-    p = len(init) // 2
-    ll = -np.inf
+    p = len(init)
     mat = np.zeros((iters, p))
     x = init
     if (verb):
@@ -92,15 +96,15 @@ def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
         if (verb):
             print(str(i), end=" ", flush=True)
         for j in range(thin):
-            x, ll = kernel(x, ll)
-        mat[i,:] = x[range(p)]
+            x = kernel(x)
+        mat[i,:] = x
     if (verb):
         print("\nDone.", flush=True)
     return mat
 
 pre = np.array([100.,1.,1.,1.,1.,1.,25.,1.])
 
-out = mcmc(np.concatenate((res.x, 1e10*np.ones((len(res.x))))),
+out = mcmc(res.x,
            hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/pre), thin=20)
 
 print(out)
