@@ -7,16 +7,27 @@ import smfsb.*
 import scalaglm.*
 import breeze.linalg.*
 import breeze.numerics.*
-import breeze.stats.distributions.Gaussian
+import breeze.stats.distributions.{Gaussian, Uniform}
 import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 import annotation.tailrec
 
+def mhKern[S](
+    logPost: S => Double, rprop: S => S,
+    dprop: (S, S) => Double = (n: S, o: S) => 1.0
+  ): (S) => S =
+    val r = Uniform(0.0,1.0)
+    x0 =>
+      val x = rprop(x0)
+      val ll0 = logPost(x0)
+      val ll = logPost(x)
+      val a = ll - ll0 + dprop(x0, x) - dprop(x, x0)
+      if (math.log(r.draw()) < a) x else x0
+
 def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
   eps: Double = 1e-4, l: Int = 10) =
   val sdmm = sqrt(dmm)
-  def leapf(q: DVD): DVD = 
-    val p = sdmm map (sd => Gaussian(0,sd).draw())
+  def leapf(q: DVD, p: DVD): DVD = 
     @tailrec def go(q0: DVD, p0: DVD, l: Int): DVD =
       val q = q0 + eps*(p0/:/dmm)
       val p = if (l > 0)
@@ -28,12 +39,17 @@ def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
       else
         go(q, p, l-1)
     go(q, p + 0.5*eps*glpi(q), l)
-  def rprop(x: DVD): DVD =
-    leapf(x(0 until (x.length/2)))
   def alpi(x: DVD): Double =
     val d = x.length/2
     lpi(x(0 until d)) - 0.5*sum(pow(x(d until 2*d),2) /:/ dmm)
-  mhKernel(alpi, rprop)
+  def rprop(x: DVD): DVD =
+    val d = x.length/2
+    leapf(x(0 until d), x(d until 2*d))
+  val mhk = mhKern(alpi, rprop)
+  (q: DVD) =>
+    val d = q.length
+    val p = sdmm map (sd => Gaussian(0,sd).draw())
+    mhk(DenseVector.vertcat(q, p))(0 until d)
 
 @main def hmc() =
   println("First read and process the data")
@@ -72,9 +88,8 @@ def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
   println(glp(lr.coefficients))
   val pre = DenseVector(100.0,1.0,1.0,1.0,1.0,1.0,25.0,1.0)
   val kern = hmcKernel(lpost, glp, 1.0 / pre, eps=1e-3, l=50)
-  val s = LazyList.iterate((DenseVector.vertcat(lr.coefficients,
-    1e10*DenseVector.ones[Double](pre.length)), -Inf))(kern) map (_._1)
-  val out = s.drop(150).thin(20).map(x => x(0 until pre.length)).take(10000)
+  val s = LazyList.iterate(lr.coefficients)(kern)
+  val out = s.drop(150).thin(20).take(10000)
   println("Starting HMC run now. Be patient...")
   Mcmc.summary(out,true)
   println("Done.")
