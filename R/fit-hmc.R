@@ -46,20 +46,18 @@ print(glp(fit$par))
 
 print("Next, HMC:")
 
-mhKernel = function(logPost, rprop, dprop = function(new, old, ...) { 1 })
-    function(x, ll) {
+mhKernel = function(logPost, rprop)
+    function(x) {
         prop = rprop(x)
-        llprop = logPost(prop)
-        a = llprop - ll + dprop(x, prop) - dprop(prop, x)
+        a = logPost(prop) - logPost(x)
         if (log(runif(1)) < a)
-            list(x=prop, ll=llprop)
+            prop
         else
-            list(x=x, ll=ll)
+            x
     }
     
 mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     p = length(init)/2
-    ll = -Inf
     mat = matrix(0, nrow = iters, ncol = p)
     colnames(mat) = names(init[1:p])
     x = init
@@ -68,11 +66,8 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     for (i in 1:iters) {
         if (verb) 
             message(paste(i, ""), appendLF = FALSE)
-        for (j in 1:thin) {
-            pair = kernel(x, ll)
-            x = pair$x
-            ll = pair$ll
-            }
+        for (j in 1:thin)
+            x = kernel(x)
         mat[i, ] = x[1:p]
         }
     if (verb) 
@@ -82,8 +77,7 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
 
 hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
     sdmm = sqrt(dmm)
-    leapf = function(q) {
-        p = rnorm(length(q), 0, sdmm)
+    leapf = function(q, p) {
         p = p + 0.5*eps*glpi(q)
         for (i in 1:l) {
             q = q + eps*p/dmm
@@ -98,11 +92,19 @@ hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
         d = length(x)/2
         lpi(x[1:d]) - 0.5*sum((x[(d+1):(2*d)]^2)/dmm)
     }
-    rprop = function(x) leapf(x[1:(length(x)/2)])
-    mhKernel(alpi, rprop)
+    rprop = function(x) {
+        d = length(x)/2
+        leapf(x[1:d], x[(d+1):(2*d)])
+    }
+    mhk = mhKernel(alpi, rprop)
+    function(x) {
+        d = length(x)/2
+        x[(d+1):(2*d)] = rnorm(d, 0, sdmm)
+        mhk(x)
+    }
 }
 
-out = mcmc(c(fit$par, rep(1e10, length(fit$par))),
+out = mcmc(c(fit$par, rep(0, length(fit$par))),
            hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/c(100,1,1,1,1,1,25,1)),
            thin=20)
 
