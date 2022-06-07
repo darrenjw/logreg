@@ -1,3 +1,4 @@
+#!/usr/bin/env julia
 # fit-mala-ad.jl
 # Fit Bayesian logistic regression using MALA MCMC in Julia
 

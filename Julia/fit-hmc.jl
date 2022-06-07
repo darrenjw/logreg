@@ -1,3 +1,4 @@
+#!/usr/bin/env julia
 # fit-hmc.jl
 # Fit Bayesian logistic regression using HMC in Julia
 

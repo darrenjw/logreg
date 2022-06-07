@@ -1,3 +1,4 @@
+#!/usr/bin/env julia
 # fit-bayes.jl
 # Fit Bayesian logistic regression using RW MH MCMC in Julia
 
