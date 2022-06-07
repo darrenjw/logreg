@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-mala.R
 ## Bayesian estimation using gradient information (MALA)
 

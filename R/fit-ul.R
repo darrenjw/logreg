@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-ul.R
 ## Bayesian estimation using an *approximate* unadjusted Langevin algorithm
 

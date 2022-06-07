@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-bayes.R
 ## Bayesian estimation using log-likelihood
 

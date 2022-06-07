@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-glm.R
 ## Read data from disk and fit logistic regression model using "glm"
 

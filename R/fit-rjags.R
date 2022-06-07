@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-rjags.R
 ## Bayesian MCMC fit using R-JAGS
 

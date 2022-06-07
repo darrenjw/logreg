@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## create-dataset.R
 ## Script to save the Pima Indians training data in parquet format
 
