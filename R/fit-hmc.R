@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-hmc.R
 ## Bayesian estimation using gradient information (HMC)
 

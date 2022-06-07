@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ## fit-rstan.R
 ## Bayesian MCMC fit using R-Stan
 
