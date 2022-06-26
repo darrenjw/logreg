@@ -2,9 +2,9 @@ name:                lr
 version:             0.1.0.0
 github:              "githubuser/lr"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+author:              "Darren J Wilkinson"
+maintainer:          "darrenjwilkinson@btinternet.com"
+copyright:           "2022 Darren J Wilkinson"
 
 extra-source-files:
 - README.md
@@ -21,14 +21,11 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- text
-- Frames
-- pipes
-- vinyl
-- foldl
-- microlens
-- hmatrix
-- statistics
+- Frames >= 0.7 && < 1
+- pipes >= 4.3 && < 5
+- microlens >= 0.4 && < 1
+- hmatrix >= 0.20 && < 1
+- statistics >= 0.16 && < 1
 - vector >= 0.12 && < 1
 - random >= 1.2 && < 2
 - mwc-random >= 0.15 && < 1

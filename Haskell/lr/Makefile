@@ -5,7 +5,7 @@ FORCE:
 	make rwmh.mat
 	make rwmh.out
 
-rwmh.mat: app/Main.hs
+rwmh.mat: app/Main.hs package.yaml
 	stack build && time stack exec lr-exe
 
 rwmh.out: rwmh.mat

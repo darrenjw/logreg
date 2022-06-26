@@ -8,18 +8,11 @@ module Main where
 -- import Lib
 import GHC.Prim
 import Control.Monad
-import qualified Control.Foldl as L
-import Control.Arrow ((&&&))
 import qualified Data.Foldable as F
-import Data.Vinyl
-import Data.Vinyl.Functor (Identity(..), Const(..))
-import Lens.Micro
 import Lens.Micro.Extras
 import Frames
 import Frames.TH (rowGen, RowGen(..))
 import Pipes hiding (Proxy)
-import qualified Pipes as P
-import qualified Pipes.Prelude as P
 import Numeric.LinearAlgebra
 import Statistics.Distribution
 import Statistics.Distribution.Normal
@@ -29,6 +22,7 @@ import System.Random.Stateful
 import System.Random.MWC
 import qualified System.Random.MWC.Distributions as MWC
 import qualified Data.Vector.Fusion.Stream.Monadic as MS
+
 
 -- template Haskell to create the Person type, and personParser
 tableTypes' (rowGen "../../pima.data")
@@ -105,7 +99,7 @@ mcmc it th x0 kern g = MS.iterateNM it (stepN th (kern g)) x0
 -- Apply a monadic function repeatedly
 stepN :: (Monad m) => Int -> (a -> m a) -> (a -> m a)
 stepN n fa = if (n == 1)
-  then (\x -> fa x)
+  then fa
   else (\x -> (fa x) >>= (stepN (n-1) fa))
 
 -- thin a (lazy) list (no longer need this function)
@@ -121,9 +115,9 @@ thin t xs = let
 main :: IO ()
 main = do
   putStrLn "RWMH in Haskell"
-  let its = 10000
+  let its = 10000 -- required number of iterations (post thinning and burn-in)
   let burn = 10 -- NB. This is burn-in AFTER thinning
-  let th = 1000
+  let th = 1000 -- thinning interval
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
