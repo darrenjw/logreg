@@ -99,9 +99,8 @@ mhKernel logPost rprop g (x0, ll0) = do
 
 -- MCMC stream
 mcmc :: (StatefulGen g m) =>
-  Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
-mcmc it x0 kern g = MS.iterateNM it (kern g) x0
-
+  Int -> Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
+mcmc it th x0 kern g = MS.iterateNM it (stepN th (kern g)) x0
 
 -- Apply a monadic function repeatedly
 stepN :: (Monad m) => Int -> (a -> m a) -> (a -> m a)
@@ -109,7 +108,7 @@ stepN n fa = if (n == 1)
   then (\x -> fa x)
   else (\x -> (fa x) >>= (stepN (n-1) fa))
 
--- thin a (lazy) list
+-- thin a (lazy) list (no longer need this function)
 thin :: Int -> [s] -> [s]
 thin t xs = let
   xn = drop t xs
@@ -123,9 +122,8 @@ main :: IO ()
 main = do
   putStrLn "RWMH in Haskell"
   let its = 10000
-  let burn = 1000
-  let th = 100
-  let tot = burn + th*its
+  let burn = 10 -- NB. This is burn-in AFTER thinning
+  let th = 1000
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
@@ -139,18 +137,12 @@ main = do
   gen <- createSystemRandom
   let kern = mhKernel (lpost x y) rprop :: Gen RealWorld -> (Vector Double, Double) -> IO (Vector Double, Double)
   putStrLn "Running RWMH now..."
-  let sm = MS.drop burn $ mcmc tot (b0, -1e50) kern gen
-  putStrLn "Sequencing..."
-  st <- MS.toList sm
-  putStrLn "Thinning..."
-  let stt = thin th st
+  let ms = MS.drop burn $ mcmc (burn + its) th (b0, -1e50) kern gen
+  out <- MS.toList ms
   putStrLn "MCMC finished."
-  let m = fromLists (toList <$> (fst <$> stt))
-  --disp 2 m
-  saveMatrix "rwmh.mat" "%g" m
+  let mat = fromLists (toList <$> (fst <$> out))
+  saveMatrix "rwmh.mat" "%g" mat
   putStrLn "All done."
-
-
 
 
 -- eof
