@@ -1,7 +1,7 @@
 # Bayesian logistic regression in Haskell
 
 
-The Haskell code builds using [stack](https://docs.haskellstack.org/en/stable/README/). `stack` is the Haskell equivalent of Scala's `sbt. `stack` should manage all necessary dependencies, including Haskell itself.
+The Haskell code builds using [stack](https://docs.haskellstack.org/en/stable/README/). `stack` is the Haskell equivalent of Scala's `sbt`. `stack` should manage all necessary dependencies, including Haskell itself.
 
 
 ```bash
