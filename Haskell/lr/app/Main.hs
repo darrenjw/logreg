@@ -99,8 +99,9 @@ mhKernel logPost rprop g (x0, ll0) = do
 
 -- MCMC stream
 mcmc :: (StatefulGen g m) =>
-  (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> [m (s, Double)]
-mcmc x0 kern g = iterate (\mx -> mx >>= (kern g)) (kern g x0)
+  Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
+mcmc it x0 kern g = MS.iterateNM it (kern g) x0
+--mcmc x0 kern g = iterate (\mx -> mx >>= (kern g)) (kern g x0)
 
 -- thin a (lazy) list
 thin :: Int -> [s] -> [s]
@@ -117,6 +118,10 @@ thin t xs = let
 main :: IO ()
 main = do
   putStrLn "RWMH in Haskell"
+  let its = 10000
+  let burn = 1000
+  let th = 100
+  let tot = burn + th*its
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
@@ -129,13 +134,14 @@ main = do
   let b0 = fromList [-9.0, 0, 0, 0, 0, 0, 0, 0]
   gen <- createSystemRandom
   let kern = mhKernel (lpost x y) rprop :: Gen RealWorld -> (Vector Double, Double) -> IO (Vector Double, Double)
-  let sm = mcmc (b0, -1e50) kern gen
   putStrLn "Running RWMH now..."
-  let smt = take 10000 $ thin 2 $ drop 100 sm
+  let sm = MS.drop burn $ mcmc tot (b0, -1e50) kern gen
   putStrLn "Sequencing..."
-  st <- sequence smt
+  st <- MS.toList sm
+  putStrLn "Thinning..."
+  let stt = thin th st
   putStrLn "MCMC finished."
-  let m = fromLists (toList <$> (fst <$> st))
+  let m = fromLists (toList <$> (fst <$> stt))
   --disp 2 m
   saveMatrix "rwmh.mat" "%g" m
   putStrLn "All done."
