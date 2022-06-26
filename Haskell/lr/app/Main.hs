@@ -101,7 +101,13 @@ mhKernel logPost rprop g (x0, ll0) = do
 mcmc :: (StatefulGen g m) =>
   Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
 mcmc it x0 kern g = MS.iterateNM it (kern g) x0
---mcmc x0 kern g = iterate (\mx -> mx >>= (kern g)) (kern g x0)
+
+
+-- Apply a monadic function repeatedly
+stepN :: (Monad m) => Int -> (a -> m a) -> (a -> m a)
+stepN n fa = if (n == 1)
+  then (\x -> fa x)
+  else (\x -> (fa x) >>= (stepN (n-1) fa))
 
 -- thin a (lazy) list
 thin :: Int -> [s] -> [s]
@@ -110,8 +116,6 @@ thin t xs = let
   in if (null xn)
     then []
     else (head xn) : (thin t xn)
-
-
 
 
 -- main entry point to the program
