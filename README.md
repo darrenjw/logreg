@@ -90,6 +90,13 @@ The Julia examples depend only on standard packages which are part of the Julia 
 * [fit-hmc-ad.jl](Julia/fit-hmc-ad.jl) - HMC in Julia, using AD for gradients. Again, this is much slower than using hard-coded gradients.
 
 
+### Haskell
+
+The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/) to build and run and manage dependencies. See the [readme](Haskell/lr/README.md) in the `Haskell/lr` directory for further details.
+
+* [Main.hs](Haskell/lr/app/Main.hs) - Random walk MH in Haskell, using stateful monadic random number generators.
+
+
 ### C
 
 The C examples assume a Unix-like development environment. See the [Readme](C/Readme.md) in the C directory for further info.
