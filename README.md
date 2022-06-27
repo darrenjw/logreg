@@ -94,7 +94,7 @@ The Julia examples depend only on standard packages which are part of the Julia 
 
 The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/) to build and run and manage dependencies. See the [readme](Haskell/lr/README.md) in the `Haskell/lr` directory for further details.
 
-* [Main.hs](Haskell/lr/app/Main.hs) - Random walk MH in Haskell, using stateful monadic random number generators.
+* [Rwmh.hs](Haskell/lr/app/Rwmh.hs) - Random walk MH in Haskell, using stateful monadic random number generators.
 
 
 ### C
