@@ -46,6 +46,7 @@ library
 executable lr-exe
   main-is: Main.hs
   other-modules:
+      Rwmh
       Paths_lr
   hs-source-dirs:
       app
