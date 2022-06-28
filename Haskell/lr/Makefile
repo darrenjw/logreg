@@ -2,14 +2,24 @@
 
 
 FORCE:
-	make rwmh.mat
+	make build
 	make rwmh.out
+	make rwmhP.out
 
-rwmh.mat: app/Main.hs package.yaml
-	stack build && time stack exec lr-exe
+build:
+	stack build
 
-rwmh.out: rwmh.mat
-	./analyse.R > rwmh.out
+rwmh.mat:
+	make build
+	time stack exec lr-exe rwmh
+
+rwmhP.mat:
+	make build
+	time stack exec lr-exe rwmhP
+
+%.out: %.mat
+	./analyse.R $< > $@
+	cp Rplots.pdf $@.pdf
 
 
 edit:
@@ -18,5 +28,7 @@ edit:
 repl:
 	stack ghci
 
+clean:
+	rm -f *.mat *.out
 
 # eof

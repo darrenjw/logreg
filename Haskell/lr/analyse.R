@@ -5,7 +5,13 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load("smfsb")
 
-out = read.table("rwmh.mat", header=FALSE)
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) != 1)
+    stop("analyse.R filename.mat")
+
+fileName = args[1]
+
+out = read.table(fileName, header=FALSE)
 names(out) = paste0("V", 0:7)
 
 mcmcSummary(out)

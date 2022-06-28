@@ -102,14 +102,6 @@ stepN n fa = if (n == 1)
   then fa
   else (\x -> (fa x) >>= (stepN (n-1) fa))
 
--- thin a (lazy) list (no longer need this function)
-thin :: Int -> [s] -> [s]
-thin t xs = let
-  xn = drop t xs
-  in if (null xn)
-    then []
-    else (head xn) : (thin t xn)
-
 
 -- main entry point to this program
 rwmh :: IO ()

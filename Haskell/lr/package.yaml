@@ -30,6 +30,7 @@ dependencies:
 - random >= 1.2 && < 2
 - mwc-random >= 0.15 && < 1
 - ghc-prim >= 0.7 && < 1
+- Stream >= 0.4 && < 1
 
 library:
   source-dirs: src
