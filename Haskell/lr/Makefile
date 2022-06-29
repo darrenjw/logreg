@@ -17,6 +17,10 @@ rwmhP.mat:
 	make build
 	time stack exec lr-exe rwmhP
 
+mala.mat:
+	make build
+	time stack exec lr-exe mala
+
 %.out: %.mat
 	./analyse.R $< > $@
 	cp Rplots.pdf $@.pdf

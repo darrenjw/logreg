@@ -47,6 +47,7 @@ library
 executable lr-exe
   main-is: Main.hs
   other-modules:
+      Mala
       Rwmh
       RwmhP
       Paths_lr
