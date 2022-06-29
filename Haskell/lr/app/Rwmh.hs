@@ -121,6 +121,8 @@ rwmh = do
   -- Do MCMC...
   let b0 = fromList [-9.0, 0, 0, 0, 0, 0, 0, 0]
   gen <- createSystemRandom
+  --pg <- initStdGen
+  --gen <- newIOGenM pg
   let kern = mhKernel (lpost x y) rprop :: Gen RealWorld -> (Vector Double, Double) -> IO (Vector Double, Double)
   putStrLn "Running RWMH now..."
   let ms = MS.drop burn $ mcmc (burn + its) th (b0, -1e50) kern gen
