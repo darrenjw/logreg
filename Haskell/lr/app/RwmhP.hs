@@ -46,8 +46,8 @@ rpropP beta g = let
   in (beta + 0.02 * pre * z, g1)
 
 -- Metropolis kernel (pure version)
-mhKernelP :: (RandomGen g) => (s -> Double) -> (s -> g -> (s, g)) -> g -> (s, Double) -> ((s, Double), g)
-mhKernelP logPost rprop g (x0, ll0) = let
+mKernelP :: (RandomGen g) => (s -> Double) -> (s -> g -> (s, g)) -> g -> (s, Double) -> ((s, Double), g)
+mKernelP logPost rprop g (x0, ll0) = let
   (x, g1) = rprop x0 g
   ll = logPost(x)
   a = ll - ll0
@@ -91,7 +91,7 @@ rwmhP = do
   -- Do MCMC...
   let b0 = fromList [-9.0, 0, 0, 0, 0, 0, 0, 0]
   gen <- initStdGen
-  let kern = mhKernelP (lpost x y) rpropP
+  let kern = mKernelP (lpost x y) rpropP
   putStrLn "Running pure RWMH now..."
   let ds = mcmcP (b0, -1e50) kern gen
   let out = DS.take its $ thin th $ DS.drop burn ds

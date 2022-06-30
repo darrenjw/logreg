@@ -5,21 +5,27 @@ FORCE:
 	make build
 	make rwmh.out
 	make rwmhP.out
+	make mala.out
+	make hmc.out
 
 build:
 	stack build
 
-rwmh.mat:
+rwmh.mat: app/Rwmh.hs
 	make build
 	time stack exec lr-exe rwmh
 
-rwmhP.mat:
+rwmhP.mat: app/RwmhP.hs
 	make build
 	time stack exec lr-exe rwmhP
 
-mala.mat:
+mala.mat: app/Mala.hs
 	make build
 	time stack exec lr-exe mala
+
+hmc.mat: app/Hmc.hs
+	make build
+	time stack exec lr-exe hmc
 
 %.out: %.mat
 	./analyse.R $< > $@

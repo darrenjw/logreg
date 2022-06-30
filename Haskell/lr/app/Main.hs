@@ -4,6 +4,7 @@ module Main where
 import Rwmh
 import RwmhP
 import Mala
+import Hmc
 
 import System.Environment
 import System.Exit
@@ -14,7 +15,7 @@ main = do
   let l = length args
   case l of
     0 -> do
-      putStrLn "Choices: rwmh rwmhP mala"
+      putStrLn "Choices: rwmh rwmhP mala hmc"
       exitFailure
     1 -> do
       let choice = head args
@@ -22,4 +23,5 @@ main = do
         "rwmh" -> rwmh
         "rwmhP" -> rwmhP
         "mala" -> mala
+        "hmc" -> hmc
 

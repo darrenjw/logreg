@@ -47,6 +47,7 @@ library
 executable lr-exe
   main-is: Main.hs
   other-modules:
+      Hmc
       Mala
       Rwmh
       RwmhP

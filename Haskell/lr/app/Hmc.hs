@@ -3,7 +3,7 @@
  ScopedTypeVariables, TemplateHaskell, TypeOperators, TypeApplications,
  ViewPatterns #-}
 
-module Rwmh where
+module Hmc where
 
 -- import Lib
 import GHC.Prim
@@ -68,32 +68,69 @@ lprior b = sum $ (\x -> logDensity (normalDistr 0.0 (snd x)) (fst x)) <$> (zip (
 lpost :: Matrix Double -> Vector Double -> Vector Double -> Double
 lpost x y b = (ll x y b) + (lprior b)
 
--- symmetric proposal function
-pre :: Vector Double -- relative scalings of the proposal noise
-pre = fromList [10.0, 1, 1, 1, 1, 1, 5, 1]
+-- gradient
+glp :: Matrix Double -> Vector Double -> Vector Double -> Vector Double
+glp x y b = let
+  glpr = -b / (fromList [100.0, 1, 1, 1, 1, 1, 1, 1])
+  gll = (tr x) #> (y - (scalar 1)/((scalar 1) + (cmap exp (-x #> b))))
+  in glpr + gll
 
-rprop :: (StatefulGen g m) =>  Vector Double -> g -> m (Vector Double)
-rprop beta g = do
-  let p = size pre
-  zl <- (replicateM p . genContVar (normalDistr 0.0 0.02)) g
-  let z = fromList zl
-  return (beta + pre * z)
+-- Inverse diagonal mass-matrix pre-conditioner
+pre :: Vector Double
+pre = fromList [100.0, 1, 1, 1, 1, 1, 25, 1]
 
--- Metropolis kernel
-mKernel :: (StatefulGen g m) => (s -> Double) -> (s -> g -> m s) -> g -> (s, Double) -> m (s, Double)
-mKernel logPost rprop g (x0, ll0) = do
-  x <- rprop x0 g
-  let ll = logPost(x)
+-- Metropolis kernel (deterministic proposal)
+mdKernel :: (StatefulGen g m) => (s -> Double) -> (s -> s) -> g -> s -> m s
+mdKernel logPost prop g x0 = do
+  let x = prop x0
+  let ll0 = logPost x0
+  let ll = logPost x
   let a = ll - ll0
   u <- (genContVar (uniformDistr 0.0 1.0)) g
   let next = if ((log u) < a)
-        then (x, ll)
-        else (x0, ll0)
+        then x
+        else x0
   return next
 
+-- HMC kernel
+hmcKernel :: (StatefulGen g m) =>
+  (Vector Double -> Double) -> (Vector Double -> Vector Double) -> Vector Double ->
+  Double -> Int -> g ->
+  Vector Double -> m (Vector Double)
+hmcKernel lpi glpi dmm eps l g = let
+  sdmm = cmap sqrt dmm
+  leapf q p = let
+    go q0 p0 l = let
+      q = q0 + (scalar eps)*p0/dmm
+      p = if (l > 0)
+        then p0 + (scalar eps)*(glpi q)
+        else p0 + (scalar (eps/2))*(glpi q)
+      in if (l == 1)
+      then vjoin [q, -p]
+      else go q p (l - 1)
+    in go q (p + (scalar (eps/2))*(glpi q)) l
+  alpi x = let
+    d = div (size x) 2
+    q = subVector 0 d x
+    p = subVector d d x
+    in (lpi q) - 0.5*(sumElements (p*p/dmm))
+  prop x = let
+    d = div (size x) 2
+    q = subVector 0 d x
+    p = subVector d d x
+    in leapf q p
+  mk = mdKernel alpi prop g
+  in (\q -> do
+         let d = size q
+         zl <- (replicateM d . genContVar (normalDistr 0.0 1.0)) g
+         let z = fromList zl
+         let p = sdmm * z
+         next <- mk (vjoin [q, p])
+         return (subVector 0 d next))
+  
 -- MCMC stream
 mcmc :: (StatefulGen g m) =>
-  Int -> Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
+  Int -> Int -> s -> (g -> s -> m s) -> g -> MS.Stream m s
 mcmc it th x0 kern g = MS.iterateNM it (stepN th (kern g)) x0
 
 -- Apply a monadic function repeatedly
@@ -104,12 +141,12 @@ stepN n fa = if (n == 1)
 
 
 -- main entry point to this program
-rwmh :: IO ()
-rwmh = do
-  putStrLn "RWMH in Haskell"
+hmc :: IO ()
+hmc = do
+  putStrLn "HMC in Haskell"
   let its = 10000 -- required number of iterations (post thinning and burn-in)
   let burn = 10 -- NB. This is burn-in AFTER thinning
-  let th = 1000 -- thinning interval
+  let th = 20 -- thinning interval
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
@@ -123,13 +160,13 @@ rwmh = do
   gen <- createSystemRandom
   --pg <- initStdGen
   --gen <- newIOGenM pg
-  let kern = mKernel (lpost x y) rprop :: Gen RealWorld -> (Vector Double, Double) -> IO (Vector Double, Double)
-  putStrLn "Running RWMH now..."
-  let ms = MS.drop burn $ mcmc (burn + its) th (b0, -1e50) kern gen
+  let kern = hmcKernel (lpost x y) (glp x y) ((scalar 1) / pre) 1e-3 50 :: Gen RealWorld -> Vector Double -> IO (Vector Double)
+  putStrLn "Running HMC now..."
+  let ms = MS.drop burn $ mcmc (burn + its) th b0 kern gen
   out <- MS.toList ms
   putStrLn "MCMC finished."
-  let mat = fromLists (toList <$> (fst <$> out))
-  saveMatrix "rwmh.mat" "%g" mat
+  let mat = fromLists (toList <$> out)
+  saveMatrix "hmc.mat" "%g" mat
   putStrLn "All done."
 
 
