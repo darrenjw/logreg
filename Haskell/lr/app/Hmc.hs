@@ -102,7 +102,7 @@ hmcKernel lpi glpi dmm eps l g = let
   leapf q p = let
     go q0 p0 l = let
       q = q0 + (scalar eps)*p0/dmm
-      p = if (l > 0)
+      p = if (l > 1)
         then p0 + (scalar eps)*(glpi q)
         else p0 + (scalar (eps/2))*(glpi q)
       in if (l == 1)

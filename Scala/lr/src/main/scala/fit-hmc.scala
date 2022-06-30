@@ -30,7 +30,7 @@ def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
   def leapf(q: DVD, p: DVD): DVD = 
     @tailrec def go(q0: DVD, p0: DVD, l: Int): DVD =
       val q = q0 + eps*(p0/:/dmm)
-      val p = if (l > 0)
+      val p = if (l > 1)
         p0 + eps*glpi(q)
       else
         p0 + 0.5*eps*glpi(q)
