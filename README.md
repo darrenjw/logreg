@@ -79,6 +79,16 @@ The Spark example requires a Spark installation in addition to `sbt`. See the [R
 * [fit-spark.scala](Scala/spark/src/main/scala/fit-spark.scala) - RW MH, with Spark being used to distribute the log-likelihood evaluation over a cluster. Note that this code runs very slowly, as the overheads associated with distributing the computation dominate for very small datasets like the one used here. The thinning interval has been reduced so that the job completes in reasonable time.
 
 
+### Haskell
+
+The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/) to build and run and manage dependencies. See the [readme](Haskell/lr/README.md) in the `Haskell/lr` directory for further details.
+
+* [Rwmh.hs](Haskell/lr/app/Rwmh.hs) - Random walk MH in Haskell, using a stateful monadic random number generator.
+* [RwmhP.hs](Haskell/lr/app/RwmhP.hs) - Random walk MH in Haskell, using a pure random number generator explicity threaded through the code.
+* [Mala.hs](Haskell/lr/app/Mala.hs) - MALA in Haskell (using a stateful monadic random number generator).
+
+
+
 ### Julia
 
 The Julia examples depend only on standard packages which are part of the Julia package ecosystem, and are therefore easy to `add`, in principle. But in my limited experience, package dependency conflicts are even more of a problem in Julia than they are in Python, and that's saying something.
@@ -88,14 +98,6 @@ The Julia examples depend only on standard packages which are part of the Julia 
 * [fit-mala-ad.jl](Julia/fit-mala-ad.jl) - MALA in Julia, with AD gradients via Zygote. Note that this is much slower than using hard-coded gradients.
 * [fit-hmc.jl](Julia/fit-hmc.jl) - HMC in Julia.
 * [fit-hmc-ad.jl](Julia/fit-hmc-ad.jl) - HMC in Julia, using AD for gradients. Again, this is much slower than using hard-coded gradients.
-
-
-### Haskell
-
-The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/) to build and run and manage dependencies. See the [readme](Haskell/lr/README.md) in the `Haskell/lr` directory for further details.
-
-* [Rwmh.hs](Haskell/lr/app/Rwmh.hs) - Random walk MH in Haskell, using a stateful monadic random number generator.
-* [RwmhP.hs](Haskell/lr/app/RwmhP.hs) - Random walk MH in Haskell, using a pure random number generator explicity threaded through the code
 
 
 ### C
