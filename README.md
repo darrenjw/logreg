@@ -85,6 +85,7 @@ The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/
 
 * [Rwmh.hs](Haskell/lr/app/Rwmh.hs) - Random walk MH in Haskell, using a stateful monadic random number generator.
 * [RwmhP.hs](Haskell/lr/app/RwmhP.hs) - Random walk MH in Haskell, using a pure random number generator explicity threaded through the code.
+* [RwmhPS.hs](Haskell/lr/app/RwmhPS.hs) - Random walk MH in Haskell, using a pure random number generator together with a splitting approach, *a la* JAX and DEX.
 * [Mala.hs](Haskell/lr/app/Mala.hs) - MALA in Haskell (using a stateful monadic random number generator).
 * [Hmc.hs](Haskell/lr/app/Hmc.hs) - HMC in Haskell (using a stateful monadic random number generator).
 

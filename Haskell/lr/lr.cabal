@@ -33,15 +33,18 @@ library
   build-depends:
       Frames >=0.7 && <1
     , Stream >=0.4 && <1
+    , ad >=4.5 && <5
     , base >=4.7 && <5
     , ghc-prim >=0.7 && <1
     , hmatrix >=0.20 && <1
+    , hmatrix-vector-sized >=0.1 && <1
     , microlens >=0.4 && <1
     , mwc-random >=0.15 && <1
     , pipes >=4.3 && <5
     , random >=1.2 && <2
     , statistics >=0.16 && <1
     , vector >=0.12 && <1
+    , vector-sized >=1.5 && <2
   default-language: Haskell2010
 
 executable lr-exe
@@ -49,8 +52,10 @@ executable lr-exe
   other-modules:
       Hmc
       Mala
+      MalaAd
       Rwmh
       RwmhP
+      RwmhPS
       Paths_lr
   hs-source-dirs:
       app
@@ -58,9 +63,11 @@ executable lr-exe
   build-depends:
       Frames >=0.7 && <1
     , Stream >=0.4 && <1
+    , ad >=4.5 && <5
     , base >=4.7 && <5
     , ghc-prim >=0.7 && <1
     , hmatrix >=0.20 && <1
+    , hmatrix-vector-sized >=0.1 && <1
     , lr
     , microlens >=0.4 && <1
     , mwc-random >=0.15 && <1
@@ -68,6 +75,7 @@ executable lr-exe
     , random >=1.2 && <2
     , statistics >=0.16 && <1
     , vector >=0.12 && <1
+    , vector-sized >=1.5 && <2
   default-language: Haskell2010
 
 test-suite lr-test
@@ -81,9 +89,11 @@ test-suite lr-test
   build-depends:
       Frames >=0.7 && <1
     , Stream >=0.4 && <1
+    , ad >=4.5 && <5
     , base >=4.7 && <5
     , ghc-prim >=0.7 && <1
     , hmatrix >=0.20 && <1
+    , hmatrix-vector-sized >=0.1 && <1
     , lr
     , microlens >=0.4 && <1
     , mwc-random >=0.15 && <1
@@ -91,4 +101,5 @@ test-suite lr-test
     , random >=1.2 && <2
     , statistics >=0.16 && <1
     , vector >=0.12 && <1
+    , vector-sized >=1.5 && <2
   default-language: Haskell2010

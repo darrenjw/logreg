@@ -3,7 +3,9 @@ module Main where
 
 import Rwmh
 import RwmhP
+import RwmhPS
 import Mala
+import MalaAd
 import Hmc
 
 import System.Environment
@@ -15,13 +17,15 @@ main = do
   let l = length args
   case l of
     0 -> do
-      putStrLn "Choices: rwmh rwmhP mala hmc"
+      putStrLn "Choices: rwmh rwmhP rwmhPS mala (malaAd) hmc"
       exitFailure
     1 -> do
       let choice = head args
       case choice of
         "rwmh" -> rwmh
         "rwmhP" -> rwmhP
+        "rwmhPS" -> rwmhPS
         "mala" -> mala
+        "malaAd" -> malaAd
         "hmc" -> hmc
 

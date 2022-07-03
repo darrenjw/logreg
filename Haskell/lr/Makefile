@@ -5,7 +5,9 @@ FORCE:
 	make build
 	make rwmh.out
 	make rwmhP.out
+	make rwmhPS.out
 	make mala.out
+	make malaAd.out
 	make hmc.out
 
 build:
@@ -19,9 +21,17 @@ rwmhP.mat: app/RwmhP.hs
 	make build
 	time stack exec lr-exe rwmhP
 
+rwmhPS.mat: app/RwmhPS.hs
+	make build
+	time stack exec lr-exe rwmhPS
+
 mala.mat: app/Mala.hs
 	make build
 	time stack exec lr-exe mala
+
+malaAd.mat: app/MalaAd.hs
+	make build
+	time stack exec lr-exe malaAd
 
 hmc.mat: app/Hmc.hs
 	make build

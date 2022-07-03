@@ -31,6 +31,9 @@ dependencies:
 - mwc-random >= 0.15 && < 1
 - ghc-prim >= 0.7 && < 1
 - Stream >= 0.4 && < 1
+- ad >= 4.5 && < 5
+- vector-sized >= 1.5 && < 2
+- hmatrix-vector-sized >= 0.1 && < 1
 
 library:
   source-dirs: src
