@@ -96,7 +96,7 @@ The [Dex](https://github.com/google-research/dex-lang) examples rely only on a b
 
 * [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH in Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
 * [fit-mala.dx](Dex/fit-mala.dx) - MALA in Dex, with hard-coded gradients.
-* [fit-mala-ad.dx](Dex/fit-mala-ad.dx) - MALA in Dex, with hard-coded gradients. Roughly half as fast as using hard-coded gradients, which seems reasonable.
+* [fit-mala-ad.dx](Dex/fit-mala-ad.dx) - MALA in Dex, with auto-differentiated gradients. Roughly half as fast as using hard-coded gradients, which seems reasonable.
 
 
 ### Julia
