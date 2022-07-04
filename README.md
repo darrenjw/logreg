@@ -4,7 +4,7 @@
 
 **This repo is a work-in-progress. Once it is reasonably complete, I'll write a post or two about it over on my [blog](https://darrenjw.wordpress.com/).**
 
-This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/), [Haskell](https://www.haskell.org/), [DEX](https://github.com/google-research/dex-lang), [Julia](https://julialang.org/) and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
+This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/), [Haskell](https://www.haskell.org/), [Dex](https://github.com/google-research/dex-lang), [Julia](https://julialang.org/) and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
 
 I intend to add similar examples using one or two other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
 
@@ -94,7 +94,7 @@ The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/
 
 The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, and fast.
 
-* [fit-bayes.dx](DEX/fit-bayes.dx) - Random walk MH inn Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
+* [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH inn Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
 
 
 ### Julia
