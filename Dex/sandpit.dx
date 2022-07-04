@@ -21,6 +21,15 @@ def unfold {a b} (n: Nat) (advance: a -> (b & a)) (init: a) : Fin n => b =
 
 unfold 10 (\a. (show a, a+1)) 0
 
+def last {a n} (arr: Fin n => a): a =
+  head $ reverse arr -- TODO: must be a better way?!
+
+last [1.0,2,3,4]
+
+
+
+
+
 x = for i:(Fin 10).
   n_to_f (ordinal i)
 x

@@ -85,17 +85,17 @@ The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/
 
 * [Rwmh.hs](Haskell/lr/app/Rwmh.hs) - Random walk MH in Haskell, using a stateful monadic random number generator.
 * [RwmhP.hs](Haskell/lr/app/RwmhP.hs) - Random walk MH in Haskell, using a pure random number generator explicity threaded through the code.
-* [RwmhPS.hs](Haskell/lr/app/RwmhPS.hs) - Random walk MH in Haskell, using a pure random number generator together with a splitting approach, *a la* JAX and DEX.
+* [RwmhPS.hs](Haskell/lr/app/RwmhPS.hs) - Random walk MH in Haskell, using a pure random number generator together with a splitting approach, *a la* JAX and Dex.
 * [Mala.hs](Haskell/lr/app/Mala.hs) - MALA in Haskell (using a stateful monadic random number generator).
 * [Hmc.hs](Haskell/lr/app/Hmc.hs) - HMC in Haskell (using a stateful monadic random number generator).
 
 
 ### Dex
 
-The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, and fast.
+The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, purely functional, strongly typed, and fast.
 
-* [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH inn Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
-
+* [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH in Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
+* [fit-mala.dx](Dex/fit-mala.dx) - MALA in Dex, with hard-coded gradients.
 
 ### Julia
 

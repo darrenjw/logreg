@@ -2,6 +2,7 @@
 
 FORCE:
 	make fit-bayes.out
+	make fit-mala.out
 
 %.tsv: %.dx
 	time dex script $<
