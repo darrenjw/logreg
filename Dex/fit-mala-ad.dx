@@ -268,8 +268,6 @@ def malaKernel {n} (lpi: (Fin n)=>Float -> Float)
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 
--- TODO: look up "apply_n"
-
 def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
     xv = with_state state \st.

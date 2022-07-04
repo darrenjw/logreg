@@ -247,7 +247,6 @@ def mKernel {s} (lpost: s -> Float) (rprop: Key -> s -> s) : Key -> (s & Float) 
     select (log u < a) (x, ll) (x0, ll0)
   kern
 
--- TODO: look up "apply_n"
 def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
     xv = with_state state \st.
