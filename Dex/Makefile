@@ -5,7 +5,7 @@ FORCE:
 	make fit-mala.out
 	make fit-mala-ad.out
 	make fit-hmc.out
-
+	make fit-hmc-ad.out
 
 %.tsv: %.dx
 	time dex script $<
