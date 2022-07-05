@@ -47,26 +47,23 @@ def words (sep: Word8) (source: String): List String =
     end = left_post space_ixs.i_word
     post_slice s start end
 
-def parse_tsv (sep: Word8) (input: String): List (List String) =
+def list_to_tab {n a b} [Ix n] (dummyt: n=>b) (l: List a): n=>a =
+  (AsList ll t) = l
+  unsafe_cast_table n t
+
+def parse_tsv {n a} [Ix n] (sep: Word8) (dummyt: n=>a) (input: String): List (n=>String) =
   (AsList _ lines) = lines input
-  to_list $ map (words sep) lines
-  
+  tab_list_words = map (words sep) lines
+  to_list $ map (list_to_tab dummyt) tab_list_words
+
 
 -- examples
 
 dat = unsafe_io do read_file "../pima.data"
-ll = parse_tsv ' ' dat
-ll
-
+ll = parse_tsv ' ' (for i:(Fin 8). 1) dat
 (AsList _ tab) = ll
 tab
-
---def list_to_tab {n a} [Ix n] (l: List a): n=>a =
---  (AsList ll t) = l
---  t :: n=>a
-
--- list_to_tab $ to_list [1.0, 2, 3]
-
+-- now need to parse floats out of strings... :-(
 
 
 iterate 10 (\x. x*2) 1

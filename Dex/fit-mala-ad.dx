@@ -1,12 +1,5 @@
 '# MALA using Dex with automatic differentiation of gradients
 
-import plot
-
-dat = unsafe_io do read_file "../pima.data"
-dat
-
--- Not obvious how to parse numerical data out of the string... Plan B:
-
 
 -- ************ Paste in data here !   :-(   *****************
 
@@ -268,6 +261,10 @@ def malaKernel {n} (lpi: (Fin n)=>Float -> Float)
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 
+def last {a n} [Ix n] (arr: n=>a): a =
+  ind = unsafe_from_ordinal n $ unsafe_nat_diff (size n) 1
+  arr.((ordinal ind)@n)
+
 def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
     xv = with_state state \st.
@@ -275,7 +272,7 @@ def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
         x = kern (ixkey k i) (get st)
         st := x
         x
-    head $ reverse xv
+    last xv
   go
 
 kern = malaKernel lpost pre 1.0e-5
@@ -302,9 +299,6 @@ mat = map fst out -- ditch log-posterior evaluations
 mv = meanAndCovariance mat
 fst mv -- mean
 snd mv -- (co)variance matrix
-
--- :html show_plot $ y_plot $
---   (map head mat)
 
 def to_tsv {n p} (mat: n=>p=>Float) : String =
   ms = for i j. show mat.i.j <> "\t"

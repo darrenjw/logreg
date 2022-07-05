@@ -2,8 +2,8 @@
 
 import plot
 
-dat = unsafe_io do read_file "../pima.data"
-dat
+--dat = unsafe_io do read_file "../pima.data"
+--dat
 
 -- Not obvious how to parse numerical data out of the string... Plan B:
 
@@ -274,6 +274,7 @@ init = [-9.0,0,0,0,0,0,0,0]
 
 out = mcmc k (init, -1.0e50) (stepN 1000 kern) 10000
 
+-- from Dex MCMC example file, mcmc.dx
 def meanAndCovariance {n d} (xs:n=>d=>Float) : (d=>Float & d=>d=>Float) =
    xsMean :    d=>Float = (for i. sum for j. xs.j.i) / n_to_f (size n)
    xsCov  : d=>d=>Float = (for i i'. sum for j.
