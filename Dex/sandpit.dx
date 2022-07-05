@@ -19,21 +19,63 @@ def unfold {a b} (n: Nat) (advance: a -> (b & a)) (init: a) : Fin n => b =
       st := a
       b
 
-def last {a n} (arr: Fin n => a): a =
-  head $ reverse arr -- TODO: must be a better way?!
+def length {a n} [Ix n] (arr: n=>a): Nat =
+  size n
+
+def last_dumb {a n} [Ix n] (arr: n=>a): a =
+  head $ reverse arr
+
+def last {a n} [Ix n] (arr: n=>a): a =
+    ind = unsafe_from_ordinal n $ unsafe_nat_diff (size n) 1
+    arr.((ordinal ind)@n)
 
 def to_tsv {n p} (mat: n=>p=>Float) : String =
   ms = for i j. show mat.i.j <> "\t"
   concat (map (\l. l <> "\n") (map concat ms))
 
+-- based on "lines" from the prelude...
+def words (sep: Word8) (source: String): List String =
+  (AsList _ s) = source <> (to_list [sep])
+  (AsList num_words space_ixs) = cat_maybes for i_char.
+    if (s.i_char == sep)
+      then Just i_char
+      else Nothing
+  to_list for i_word:(Fin num_words).
+    start = case prev_ix i_word of
+      Nothing -> first_ix
+      Just i -> right_post space_ixs.i
+    end = left_post space_ixs.i_word
+    post_slice s start end
+
+def parse_tsv (sep: Word8) (input: String): List (List String) =
+  (AsList _ lines) = lines input
+  to_list $ map (words sep) lines
+  
 
 -- examples
+
+dat = unsafe_io do read_file "../pima.data"
+ll = parse_tsv ' ' dat
+ll
+
+(AsList _ tab) = ll
+tab
+
+--def list_to_tab {n a} [Ix n] (l: List a): n=>a =
+--  (AsList ll t) = l
+--  t :: n=>a
+
+-- list_to_tab $ to_list [1.0, 2, 3]
+
+
 
 iterate 10 (\x. x*2) 1
 
 unfold 10 (\a. (show a, a+1)) 0
 
-last [1.0,2,3,4]
+last_dumb [1.0,2,3,6]
+last [1.0,2,3,7]
+length [1.0, 2, 3]
 
 m = [[1.0,2,3],[4.4,5,6]]
 to_tsv m

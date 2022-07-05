@@ -247,6 +247,10 @@ def mKernel {s} (lpost: s -> Float) (rprop: Key -> s -> s) : Key -> (s & Float) 
     select (log u < a) (x, ll) (x0, ll0)
   kern
 
+def last {a n} [Ix n] (arr: n=>a): a =
+    ind = unsafe_from_ordinal n $ unsafe_nat_diff (size n) 1
+    arr.((ordinal ind)@n)
+
 def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
     xv = with_state state \st.
@@ -254,7 +258,7 @@ def stepN {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
         x = kern (ixkey k i) (get st)
         st := x
         x
-    head $ reverse xv
+    last xv
   go
 
 kern = mKernel lpost rprop
