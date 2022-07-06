@@ -92,7 +92,7 @@ The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/
 
 ### Dex
 
-The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, pure functional, strongly typed, differentiable, and fast.
+The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. See the [readme](Dex/Readme.md) in the `Dex` directory for further details. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, pure functional, strongly typed, differentiable, and fast.
 
 * [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH in Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
 * [fit-mala.dx](Dex/fit-mala.dx) - MALA in Dex, with hard-coded gradients.
