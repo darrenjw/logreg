@@ -27,29 +27,29 @@ def mhKern[S](
 def hmcKernel(lpi: DVD => Double, glpi: DVD => DVD, dmm: DVD,
   eps: Double = 1e-4, l: Int = 10) =
   val sdmm = sqrt(dmm)
-  def leapf(q: DVD, p: DVD): DVD = 
-    @tailrec def go(q0: DVD, p0: DVD, l: Int): DVD =
+  def leapf(q: DVD, p: DVD): (DVD, DVD) = 
+    @tailrec def go(q0: DVD, p0: DVD, l: Int): (DVD, DVD) =
       val q = q0 + eps*(p0/:/dmm)
       val p = if (l > 1)
         p0 + eps*glpi(q)
       else
         p0 + 0.5*eps*glpi(q)
       if (l == 1)
-        DenseVector.vertcat(q, -p)
+        (q, -p)
       else
         go(q, p, l-1)
     go(q, p + 0.5*eps*glpi(q), l)
-  def alpi(x: DVD): Double =
-    val d = x.length/2
-    lpi(x(0 until d)) - 0.5*sum(pow(x(d until 2*d),2) /:/ dmm)
-  def rprop(x: DVD): DVD =
-    val d = x.length/2
-    leapf(x(0 until d), x(d until 2*d))
+  def alpi(x: (DVD, DVD)): Double =
+    val (q, p) = x
+    lpi(q) - 0.5*sum(pow(p,2) /:/ dmm)
+  def rprop(x: (DVD, DVD)): (DVD, DVD) =
+    val (q, p) = x
+    leapf(q, p)
   val mhk = mhKern(alpi, rprop)
   (q: DVD) =>
     val d = q.length
     val p = sdmm map (sd => Gaussian(0,sd).draw())
-    mhk(DenseVector.vertcat(q, p))(0 until d)
+    mhk((q, p))._1
 
 @main def hmc() =
   println("First read and process the data")
