@@ -49,6 +49,6 @@ repl:
 	stack ghci
 
 clean:
-	rm -f *.mat *.out
+	rm -f *.mat *.out *.pdf
 
 # eof

@@ -106,27 +106,23 @@ hmcKernel lpi glpi dmm eps l g = let
         then p0 + (scalar eps)*(glpi q)
         else p0 + (scalar (eps/2))*(glpi q)
       in if (l == 1)
-      then vjoin [q, -p]
+      then (q, -p)
       else go q p (l - 1)
     in go q (p + (scalar (eps/2))*(glpi q)) l
   alpi x = let
-    d = div (size x) 2
-    q = subVector 0 d x
-    p = subVector d d x
+    (q, p) = x
     in (lpi q) - 0.5*(sumElements (p*p/dmm))
   prop x = let
-    d = div (size x) 2
-    q = subVector 0 d x
-    p = subVector d d x
+    (q, p) = x
     in leapf q p
   mk = mdKernel alpi prop g
-  in (\q -> do
-         let d = size q
+  in (\q0 -> do
+         let d = size q0
          zl <- (replicateM d . genContVar (normalDistr 0.0 1.0)) g
          let z = fromList zl
-         let p = sdmm * z
-         next <- mk (vjoin [q, p])
-         return (subVector 0 d next))
+         let p0 = sdmm * z
+         (q, p) <- mk (q0, p0)
+         return q)
   
 -- MCMC stream
 mcmc :: (StatefulGen g m) =>
