@@ -13,7 +13,7 @@ FORCE:
 	make fit-hmc.out
 	make fit-hmc-ad.out
 
-%.tsv: %.dx
+%.tsv: %.dx djwutils.dx
 	time dex --lib-path $(LIBPATH) script $<
 
 %.out: %.tsv

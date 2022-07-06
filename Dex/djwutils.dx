@@ -63,14 +63,10 @@ def parse_tsv (sep: Word8) (input: String): List (List String) =
 
 def step_n {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
-    xv = with_state state \st.
+    yield_state state \st.
       for i:(Fin n).
-        x = kern (ixkey k i) (get st)
-        st := x
-        x
-    last xv
+        st := kern (ixkey k i) (get st)
   go
-
 
 -- from Dex example file, examples/mcmc.dx
 def meanAndCovariance {n d} (xs:n=>d=>Float) : (d=>Float & d=>d=>Float) =
