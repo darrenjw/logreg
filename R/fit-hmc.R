@@ -87,21 +87,17 @@ hmcKernel = function(lpi, glpi, eps = 1e-4, l=10, dmm = 1) {
             else
                 p = p + 0.5*eps*glpi(q)
         }
-        c(q, -p)
+        list(q=q, p=-p)
     }
-    alpi = function(x) {
-        d = length(x)/2
-        lpi(x[1:d]) - 0.5*sum((x[(d+1):(2*d)]^2)/dmm)
-    }
-    rprop = function(x) {
-        d = length(x)/2
-        leapf(x[1:d], x[(d+1):(2*d)])
-    }
+    alpi = function(x)
+        lpi(x$q) - 0.5*sum((x$p^2)/dmm)
+    rprop = function(x)
+        leapf(x$q, x$p)
     mhk = mhKernel(alpi, rprop)
     function(q) {
         d = length(q)
-        x = c(q, rnorm(d, 0, sdmm))
-        mhk(x)[1:d]
+        x = list(q=q, p=rnorm(d, 0, sdmm))
+        mhk(x)$q
     }
 }
 
