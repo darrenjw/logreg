@@ -32,14 +32,21 @@ function hmcKernel(lpi, eps, l, dmm)
                 p = p .+ (0.5*eps).*glpi(q)
             end
         end
-        vcat(q, -p)
+        (q, -p)
     end
-    alpi(x) = lpi(x[1:d]) - 0.5*sum((x[(d+1):(2*d)].^2)./dmm)
-    rprop(x) = leapf(x[1:d], x[(d+1):(2*d)])
+    function alpi(x)
+        (q, p) = x
+        lpi(q) - 0.5*sum((p.^2)./dmm)
+    end
+    function rprop(x)
+        (q, p) = x
+        leapf(q, p)
+    end
     mhk = mhKernel(alpi, rprop)
-    function (q)
-        p = rand!(rng, norm, zeros(d)).*sdmm
-        mhk(vcat(q, -p))[1:d]
+    function (q0)
+        p0 = rand!(rng, norm, zeros(d)).*sdmm
+        (q, p) = mhk((q0, p0))
+        q
     end
 end
 
