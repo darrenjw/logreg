@@ -69,7 +69,7 @@ end
 # Main execution thread
 
 # Load and process the data
-df = DataFrame(load("../pima.parquet"))
+df = DataFrame(load(joinpath(@__DIR__, "..", "pima.parquet")))
 y = df.type
 y = map((yi) -> yi == "Yes" ? 1.0 : 0.0, y)
 x = df[:,1:7]
@@ -81,7 +81,7 @@ beta[1] = -10
 rng = MersenneTwister(1234)
 norm = Normal(0, 0.02)
 kern = malaKernel(lpost, glp, 1e-5, [100.0, 1, 1, 1, 1, 1, 25, 1])
-                  
+
 # Main MCMC loop
 out = mcmc(beta, kern, 10000, 1000)
 
@@ -94,4 +94,3 @@ plot(1:400, autocor(out, 1:400), layout = (4, 2))
 savefig("acf-mala.pdf")
 
 # eof
-
