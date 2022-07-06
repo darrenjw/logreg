@@ -1,5 +1,11 @@
 # Makefile
 
+# Edit this for the path to your Dex library (containing prelude.dx)
+DEXLIB=~/src/git/dex-lang/lib
+
+
+LIBPATH=$(DEXLIB):.
+
 FORCE:
 	make fit-bayes.out
 	make fit-mala.out
@@ -8,7 +14,7 @@ FORCE:
 	make fit-hmc-ad.out
 
 %.tsv: %.dx
-	time dex script $<
+	time dex --lib-path $(LIBPATH) script $<
 
 %.out: %.tsv
 	./analyse.R $< > $@
@@ -19,6 +25,13 @@ edit:
 
 clean:
 	rm -f *.out *.tsv *~ *.pdf
+
+repl:
+	dex --lib-path $(LIBPATH) repl
+
+sandpit:
+	dex --lib-path $(LIBPATH) script sandpit.dx
+
 
 # eof
 
