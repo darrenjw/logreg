@@ -72,18 +72,18 @@ def hmcKernel(lpi, glpi, eps = 1e-4, l=10, dmm = 1):
                 p = p + eps*glpi(q)
             else:
                 p = p + 0.5*eps*glpi(q)
-        return np.concatenate((q, -p))
+        return (q, -p)
     def alpi(x):
-        d = len(x) // 2
-        return lpi(x[range(d)]) - 0.5*np.sum((x[range(d,2*d)]**2)/dmm)
+        (q, p) = x
+        return lpi(q) - 0.5*np.sum((p**2)/dmm)
     def rprop(x):
-        d = len(x) // 2
-        return leapf(x[range(d)], x[range(d, 2*d)])
+        (q, p) = x
+        return leapf(q, p)
     mhk = mhKernel(alpi, rprop)
     def kern(q):
         d = len(q)
-        x = np.concatenate((q, np.random.randn(d)*sdmm))
-        return mhk(x)[range(d)]
+        p = np.random.randn(d)*sdmm
+        return mhk((q, p))[0]
     return kern
     
 def mcmc(init, kernel, thin = 10, iters = 10000, verb = True):
