@@ -67,7 +67,7 @@ mKernelP logPost rprop g (x0, ll0) = let
 
 -- MCMC Stream (pure version)
 mcmcP :: (RandomGen g) =>
-  (s, Double) -> (g -> (s, Double) -> (s, Double)) -> g -> DS.Stream (s, Double)
+  s -> (g -> s -> s) -> g -> DS.Stream s
 mcmcP x0 kern g = DS.unfold stepUf (x0, g)
   where
     stepUf xg = let

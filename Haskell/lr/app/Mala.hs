@@ -112,7 +112,7 @@ malaKernel lpi glpi pre dt g = let
   
 -- MCMC stream
 mcmc :: (StatefulGen g m) =>
-  Int -> Int -> (s, Double) -> (g -> (s, Double) -> m (s, Double)) -> g -> MS.Stream m (s, Double)
+  Int -> Int -> s -> (g -> s -> m s) -> g -> MS.Stream m s
 mcmc it th x0 kern g = MS.iterateNM it (stepN th (kern g)) x0
 
 -- Apply a monadic function repeatedly
