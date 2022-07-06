@@ -13,7 +13,7 @@ using LoopVectorization: @turbo
 
 function lprior(beta)
     d = Normal(0,1)
-    logpdf(Normal(0,10), beta[1]) + sum(map((bi) -> logpdf(d, bi), beta[2:8]))
+    logpdf(Normal(0,10), beta[1]) + sum(bi -> logpdf(d, bi), @view beta[2:8])
 end
 
 function ll!(buff, beta, x, y)
@@ -57,7 +57,9 @@ function mcmc(init, kernel, iters, thin)
     mat = zeros(iters, p)
     x = init
     for i in 1:iters
-        print(i); print(" ")
+        if iszero(i % 100)
+            print(i); print(" ")
+        end
         for j in 1:thin
             x, ll = kernel(x, ll)
         end
@@ -83,8 +85,15 @@ beta[1] = -10
 rng = MersenneTwister(1234)
 norm = Normal(0, 0.02)
 kern = let rng = rng, norm = norm
-    mhKernel(Base.Fix2(lpost!, (similar(beta, axes(x, 1)), x, y)), x ->
-                vcat( x[1]+rand(rng, norm)*10, x[2:8]+rand!(rng, norm, zeros(7))), rng)
+    fun = let buffer = similar(x, 8)
+        x -> begin
+            buffer[1] = x[1]+rand(rng, norm)*10
+            rand!(rng, norm, @view buffer[2:8])
+            @views buffer[2:8] .+= x[2:8]
+            copy(buffer)
+        end
+    end
+    mhKernel(Base.Fix2(lpost!, (similar(beta, axes(x, 1)), x, y)), fun, rng)
 end
 # Main MCMC loop
 out = @time mcmc(beta, kern, 10000, 1000)
