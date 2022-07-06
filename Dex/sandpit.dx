@@ -59,11 +59,6 @@ def list_to_tab {n a b} [Ix n] (dummyt: n=>b) (l: List a): n=>a =
   (AsList ll t) = l
   unsafe_cast_table n t
 
-def parse_tsv_old {n a} [Ix n] (sep: Word8) (dummyt: n=>a) (input: String): List (n=>String) =
-  (AsList _ lines) = lines input
-  tab_list_words = map (words sep) lines
-  to_list $ map (list_to_tab dummyt) tab_list_words
-
 def parse_tsv (sep: Word8) (input: String): List (List String) =
   (AsList _ lines) = lines input
   to_list $ map (words sep) lines
