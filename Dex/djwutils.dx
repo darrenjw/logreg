@@ -53,7 +53,7 @@ def cons {a} (x: a) (xs: List a): List a =
     False -> xt.(asidx (unsafe_nat_diff (ordinal i) 1))
   to_list nxt
 
-def list_to_tab {n a b} [Ix n] (dummyt: n=>b) (l: List a): n=>a =
+def list2tab {n a} [Ix n] (l: List a): n=>a =
   (AsList ll t) = l
   unsafe_cast_table n t
 
@@ -61,12 +61,23 @@ def parse_tsv (sep: Word8) (input: String): List (List String) =
   (AsList _ lines) = lines input
   to_list $ map (words sep) lines
 
+
+-- some Markov chain utilities
+
 def step_n {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
   def go (k: Key) (state: s) : s =
     yield_state state \st.
       for i:(Fin n).
         st := kern (ixkey k i) (get st)
   go
+
+def markov_chain {s} (k: Key) (init: s) (kern: Key -> s -> s) (its: Nat) : Fin its => s =
+  with_state init \st.
+    for i:(Fin its).
+      x = kern (ixkey k i) (get st)
+      st := x
+      x
+
 
 -- from Dex example file, examples/mcmc.dx
 def meanAndCovariance {n d} (xs:n=>d=>Float) : (d=>Float & d=>d=>Float) =

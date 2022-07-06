@@ -8,7 +8,7 @@ import djwutils
 dat = unsafe_io do read_file "../pima.data"
 (AsList _ tab) = parse_tsv ' ' dat
 atab = map (cons "1.0") tab
-att = map (list_to_tab (for i:(Fin 9). 1)) atab
+att = map (\r. list2tab r :: (Fin 9)=>String) atab
 xStr = map (\r. slice r 0 (Fin 8)) att
 xmb = map (\r. map parseString r) xStr :: (Fin 200)=>(Fin 8)=>(Maybe Float)
 x = map (\r. map from_just r) xmb :: (Fin 200)=>(Fin 8)=>Float
@@ -84,16 +84,9 @@ pre = [100.0, 1, 1, 1, 1, 1, 25, 1]
 
 kern = hmcKernel lpost (map (\x. 1.0/x) pre) 1.0e-3 49
 
-def mcmc {s} (k: Key) (init: s) (kern: Key -> s -> s) (its: Nat) : Fin its => s =
-  with_state init \st.
-    for i:(Fin its).
-      x = kern (ixkey k i) (get st)
-      st := x
-      x
-
 init = [-9.0,0,0,0,0,0,0,0]
 
-mat = mcmc k init (step_n 20 kern) 10000
+mat = markov_chain k init (step_n 20 kern) 10000
 
 mv = meanAndCovariance mat
 fst mv -- mean
