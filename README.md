@@ -4,7 +4,7 @@
 
 **This repo is a work-in-progress. Once it is reasonably complete, I'll write a post or two about it over on my [blog](https://darrenjw.wordpress.com/).**
 
-This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/), [Haskell](https://www.haskell.org/), [Dex](https://github.com/google-research/dex-lang), [Julia](https://julialang.org/) and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
+This repo contains code for MCMC-based fully Bayesian inference for a logistic regression model using [R](https://www.r-project.org/), [Python](https://www.python.org/), [Scala](https://www.scala-lang.org/), [Haskell](https://www.haskell.org/), [Dex](https://github.com/google-research/dex-lang), and [C](https://en.wikipedia.org/wiki/C_(programming_language)), using bespoke hand-coded samplers ([random walk Metropolis](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm), unadjusted Langevin algorithm, [MALA](https://en.wikipedia.org/wiki/Metropolis-adjusted_Langevin_algorithm), and [HMC](https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo)), and samplers constructed with the help of libraries such as [JAGS](https://sourceforge.net/projects/mcmc-jags/), [Stan](https://mc-stan.org/), [JAX](https://jax.readthedocs.io/), [BlackJAX](https://blackjax-devs.github.io/blackjax/), [NumPyro](https://github.com/pyro-ppl/numpyro), [PyMC3](https://docs.pymc.io/en/v3/), and [Spark](https://spark.apache.org/). 
 
 I intend to add similar examples using one or two other libraries. At some point I'd also like to switch to a much bigger dataset, that better illustrates some of the scalability issues of the different languages and libraries.
 
@@ -99,17 +99,6 @@ The [Dex](https://github.com/google-research/dex-lang) examples rely only on a b
 * [fit-mala-ad.dx](Dex/fit-mala-ad.dx) - MALA in Dex, with auto-differentiated gradients. Roughly two to three times slower than using hard-coded gradients, which seems reasonable.
 * [fit-hmc.dx](Dex/fit-hmc.dx) - HMC in Dex, with hard-coded gradients.
 * [fit-hmc-ad.dx](Dex/fit-hmc-ad.dx) - HMC in Dex, with auto-differentiated gradients. Again, 2-3 times slower than using hard-coded gradients. But still very fast.
-
-
-### Julia
-
-The Julia examples depend only on standard packages which are part of the Julia package ecosystem, and are therefore easy to `add`, in principle. But in my limited experience, package dependency conflicts are even more of a problem in Julia than they are in Python, and that's saying something.
-
-* [fit-bayes.jl](Julia/fit-bayes.jl) - Random walk MH in Julia.
-* [fit-mala.jl](Julia/fit-mala.jl) - MALA in Julia, with hard-coded gradients.
-* [fit-mala-ad.jl](Julia/fit-mala-ad.jl) - MALA in Julia, with AD gradients via Zygote. Note that this is much slower than using hard-coded gradients.
-* [fit-hmc.jl](Julia/fit-hmc.jl) - HMC in Julia.
-* [fit-hmc-ad.jl](Julia/fit-hmc-ad.jl) - HMC in Julia, using AD for gradients. Again, this is much slower than using hard-coded gradients.
 
 
 ### C
