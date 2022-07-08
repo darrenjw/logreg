@@ -1,10 +1,6 @@
 # Makefile
 
-# Edit this for the path to your Dex library (containing prelude.dx)
-DEXLIB=~/src/git/dex-lang/lib
-
-
-LIBPATH=$(DEXLIB):.
+LIBPATH=BUILTIN_LIBRARIES:.
 
 FORCE:
 	make fit-bayes.out
