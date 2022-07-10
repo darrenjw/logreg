@@ -26,7 +26,7 @@ $$\nabla \pi(b) = -b\circ v^{-1}.$$
 
 We will be analysing the "Pima" training dataset, with 200 observations and 7 predictors. Including an intercept as the first covariate gives a parameter vector of length $p=8$. The prior standard deviation for the intercept is 10, and for the other covariates is 1.
 
-#### Important disclaimer re performance and benchmarking
+### Important disclaimer re performance and benchmarking
 
 **Please read:** *The code in this repo should not be used for any kind of serious performance or benchmarking exercise. I have deliberately tried to use a reasonably consistent simple style of implementation across all of the languages. I have not made any attempt to optimise any of the implementations. Indeed, I have deliberately chosen not to optimise any of the implementations. Clearly all of the implementations could be optimised, and the nature of the optimisation would differ greatly between languages. Moreover, benchmarking on a small toy dataset such as the one considered here would be very uninteresting. The interesting scaling issues only become apparent on larger datasets.*
 
