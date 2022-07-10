@@ -24,7 +24,7 @@ y
 '## now set up for MCMC
 
 def ll (b: (Fin 8)=>Float) : Float =
-  neg $ sum (log (map (\ x. x+1) (exp (neg ((map (\ yi. 2*yi - 1) y)*(x **. b))))))
+  neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
 
 pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
 prscale = map (\ x. 1.0/x) pscale
