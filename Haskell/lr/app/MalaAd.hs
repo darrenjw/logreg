@@ -58,29 +58,35 @@ rec2v r = V.fromTuple (1.0, fromIntegral $ rgetField @Npreg r, fromIntegral $ rg
            fromIntegral $ rgetField @Bp r, fromIntegral $ rgetField @Skin r,
             rgetField @Bmi r, rgetField @Ped r, fromIntegral $ rgetField @Age r)
 
+-- generic casting
+cast :: RealFloat a => Double -> a
+cast x = fromRational $ toRational x
+
+vcast :: (KnownNat p, RealFloat a) => V.Vector p Double -> V.Vector p a
+vcast v = V.map cast v
 
 -- dot product
-vdot :: (KnownNat p, RealFloat a) => V.Vector p a -> V.Vector p a -> a
-vdot x y = V.sum $ V.map (\z -> (fst z)*(snd z)) (V.zip x y)
+vdot :: (KnownNat p, RealFloat a) => V.Vector p Double -> V.Vector p a -> a
+vdot x y = V.sum $ (vcast x) * y
 
 -- log-likelihood
-ll :: [V.Vector 8 Double] -> [Double] -> V.Vector 8 Double -> Double
-ll x y b = sum $ (\z -> negate (log (1.0 + exp ((1.0-2.0*(snd z))*(vdot (fst z) b))))
+ll :: RealFloat a => [V.Vector 8 Double] -> [Double] -> V.Vector 8 a -> a
+ll x y b = sum $ (\z -> negate (log (1.0 + exp ((1.0-2.0*(cast (snd z)))*(vdot (fst z) b))))
                     ) <$> (zip x y)
 
 -- log-prior
-pscale :: V.Vector 8 Double -- prior standard deviations
+pscale :: RealFloat a => V.Vector 8 a -- prior standard deviations
 pscale = V.fromTuple (10.0, 1, 1, 1, 1, 1, 1, 1)
 
-lprior :: V.Vector 8 Double -> Double
-lprior b = V.sum $ V.map (\x -> logDensity (normalDistr 0.0 (snd x)) (fst x)) (V.zip b pscale)
+lprior :: RealFloat a => V.Vector 8 a -> a
+lprior b = negate $ V.sum $ (log pscale) + (0.5 * (b * b))
            
 -- log-posterior
-lpost :: [V.Vector 8 Double] -> [Double] -> V.Vector 8 Double -> Double
+lpost :: RealFloat a => [V.Vector 8 Double] -> [Double] -> V.Vector 8 a -> a
 lpost x y b = (ll x y b) + (lprior b)
 
 -- MALA pre-conditioner
-pre :: V.Vector 8 Double -- relative scalings of the proposal noise
+pre :: RealFloat a => V.Vector 8 a -- relative scalings of the proposal noise
 pre = V.fromTuple (100.0, 1, 1, 1, 1, 1, 25, 1)
 
 -- Metropolis-Hastings kernel
@@ -142,12 +148,9 @@ malaAd = do
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
   let xl = rec2v <$> F.toList dat
   print xl
-  let y = vector yl :: R 200
-  print y
-  --let x = ll2m xl :: L 200 8
-  --disp 2 x
+  print yl
   -- AD tests
-  --let glp = \b -> grVec $ grad (\bv -> (lpost x y (gvecR bv))) b :: R 8 -> R 8
+  let glp = grad (\b -> lpost xl yl b)
   -- Do MCMC...
   --let b0 = vector [-9.0, 0, 0, 0, 0, 0, 0, 0] :: R 8
   --gen <- createSystemRandom
