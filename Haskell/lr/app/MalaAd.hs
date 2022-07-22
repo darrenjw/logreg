@@ -5,15 +5,6 @@
 
 module MalaAd where
 
-{-
-***********************************************************************
-***********************************************************************
-PLEASE NOTE THAT THIS IS A NON-FUNCTIONAL WIP. THE STANDARD HASKELL
-AUTO-DIFF LIBRARY CAN'T EASILY DIFFERENTIATE THROUGH MATRIX
-OPERATIONS.
-***********************************************************************
--}
-
 -- import Lib
 import GHC.Prim
 import Control.Monad
@@ -90,34 +81,36 @@ pre :: RealFloat a => V.Vector 8 a -- relative scalings of the proposal noise
 pre = V.fromTuple (100.0, 1, 1, 1, 1, 1, 25, 1)
 
 -- Metropolis-Hastings kernel
-mhKernel :: (StatefulGen g m) => (s -> Double) -> (s -> g -> m s) ->
-  (s -> s -> Double) -> g -> (s, Double) -> m (s, Double)
+mhKernel :: (RealFloat a, StatefulGen g m) => (s -> a) -> (s -> g -> m s) ->
+  (s -> s -> a) -> g -> (s, a) -> m (s, a)
 mhKernel logPost rprop dprop g (x0, ll0) = do
   x <- rprop x0 g
   let ll = logPost(x)
-  let a = ll - ll0 + (dprop x0 x) - (dprop x x0)
+  let ap = ll - ll0 + (dprop x0 x) - (dprop x x0)
   u <- (genContVar (uniformDistr 0.0 1.0)) g
-  let next = if ((log u) < a)
+  let next = if (cast (log u) < ap)
         then (x, ll)
         else (x0, ll0)
   return next
 
 -- MALA kernel
-malaKernel :: (StatefulGen g m, KnownNat p) =>
-  (R p -> Double) -> (R p -> R p) -> R p -> Double -> g ->
-  (R p, Double) -> m (R p, Double)
+malaKernel :: (StatefulGen g m, KnownNat p, RealFloat a) =>
+  (V.Vector p a -> a) -> (V.Vector p a -> V.Vector p a) -> V.Vector p a -> a -> g ->
+  (V.Vector p a, a) -> m (V.Vector p a, a)
 malaKernel lpi glpi pre dt g = let
   sdt = sqrt dt
   spre = sqrt pre
-  p = size pre
-  advance beta = beta + (konst (0.5*dt))*pre*(glpi beta)
+  v = V.map (\vi -> dt * vi) pre
+  d = length pre
+  advance beta = beta + (V.map (\vi -> (0.5*dt)*vi) (pre*(glpi beta)))
   rprop beta g = do
-    zl <- (replicateM p . genContVar (normalDistr 0.0 1.0)) g
-    let z = fromList zl
-    return $ advance(beta) + (konst sdt)*spre*z
+    zl <- (replicateM d . genContVar (normalDistr 0.0 1.0)) g
+    z <- sequence $ V.map (\vi -> genContVar (normalDistr 0.0 1.0) g) pre
+    return $ advance(beta) + (V.map (\vi -> sdt*vi) (spre*(vcast z)))
   dprop n o = let
     ao = advance o
-    in sum $ (\i -> logDensity (normalDistr (extract ao LA.! i) ((extract spre LA.! i)*sdt)) (extract n LA.! i)) <$> [0..(p-1)]
+    diff = n - ao
+    in -0.5*(sum ((log v) + (diff*diff/v)))
   in mhKernel lpi rprop dprop g
   
 -- MCMC stream
@@ -152,19 +145,15 @@ malaAd = do
   -- AD tests
   let glp = grad (\b -> lpost xl yl b)
   -- Do MCMC...
-  --let b0 = vector [-9.0, 0, 0, 0, 0, 0, 0, 0] :: R 8
-  --gen <- createSystemRandom
-  --let kern = malaKernel (lpost x y) glp pre 1e-5 :: Gen RealWorld -> (R p, Double) -> IO (R p, Double)
+  let b0 = V.fromTuple (-9.0, 0, 0, 0, 0, 0, 0, 0)
+  gen <- MWC.createSystemRandom
+  let kern = malaKernel (lpost xl yl) glp pre 1e-5 :: MWC.Gen RealWorld -> (V.Vector 8 Double, Double) -> IO (V.Vector 8 Double, Double)
   putStrLn "Running MALA with AD now..."
-  --let ms = MS.drop burn $ mcmc (burn + its) th (b0, -1e50) kern gen
-  --out <- MS.toList ms
+  let ms = MS.drop burn $ mcmc (burn + its) th (b0, -1e50) kern gen
+  out <- MS.toList ms
   putStrLn "MCMC finished."
-  --let mat = LA.fromLists (LA.toList <$> (fst <$> out))
-  --LA.saveMatrix "malaAd.mat" "%g" mat
-  putStrLn "*******************************************************************"
-  putStrLn "*******************************************************************"
-  putStrLn "Please note that this is a non-functional WIP. The standard Haskell auto-diff library can't easily differentiate through matrix operations."
-  putStrLn "*******************************************************************"
+  let mat = LA.fromLists (V.toList <$> (fst <$> out))
+  LA.saveMatrix "malaAd.mat" "%g" mat
   putStrLn "All done."
 
 
