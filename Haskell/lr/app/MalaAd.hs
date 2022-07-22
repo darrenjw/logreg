@@ -53,37 +53,35 @@ loadData :: IO (Frame Person)
 loadData = inCoreAoS dataStream
 
 -- create rows of covariate matrix
-rec2l :: Person -> [Double]
-rec2l r = [1.0, fromIntegral $ rgetField @Npreg r, fromIntegral $ rgetField @Glu r,
+rec2v :: Person -> V.Vector 8 Double
+rec2v r = V.fromTuple (1.0, fromIntegral $ rgetField @Npreg r, fromIntegral $ rgetField @Glu r,
            fromIntegral $ rgetField @Bp r, fromIntegral $ rgetField @Skin r,
-            rgetField @Bmi r, rgetField @Ped r, fromIntegral $ rgetField @Age r]
+            rgetField @Bmi r, rgetField @Ped r, fromIntegral $ rgetField @Age r)
 
--- sum an hmatrix Vector
-vsum :: LA.Vector Double -> Double
-vsum v = (LA.scalar 1) LA.<.> v
+
+-- dot product
+vdot :: (KnownNat p, RealFloat a) => V.Vector p a -> V.Vector p a -> a
+vdot x y = V.sum $ V.map (\z -> (fst z)*(snd z)) (V.zip x y)
 
 -- log-likelihood
-ll :: (KnownNat n, KnownNat p) => L n p -> R n -> R p -> Double
-ll x y b = (negate) (vsum (LA.cmap log (
-                              (LA.scalar 1) + (LA.cmap exp (LA.cmap (negate) (
-                                                         (((LA.scalar 2) * (extract y)) - (LA.scalar 1)) * (extract $ x #> b)
-                                                         )
-                                                     )))))
+ll :: [V.Vector 8 Double] -> [Double] -> V.Vector 8 Double -> Double
+ll x y b = sum $ (\z -> negate (log (1.0 + exp ((1.0-2.0*(snd z))*(vdot (fst z) b))))
+                    ) <$> (zip x y)
 
 -- log-prior
-pscale :: [Double] -- prior standard deviations
-pscale = [10.0, 1, 1, 1, 1, 1, 1, 1]
+pscale :: V.Vector 8 Double -- prior standard deviations
+pscale = V.fromTuple (10.0, 1, 1, 1, 1, 1, 1, 1)
 
-lprior :: (KnownNat p) => R p -> Double
-lprior b = sum $ (\x -> logDensity (normalDistr 0.0 (snd x)) (fst x)) <$> (zip (LA.toList $ extract b) pscale)
+lprior :: V.Vector 8 Double -> Double
+lprior b = V.sum $ V.map (\x -> logDensity (normalDistr 0.0 (snd x)) (fst x)) (V.zip b pscale)
            
 -- log-posterior
-lpost :: (KnownNat n, KnownNat p) => L n p -> R n -> R p -> Double
+lpost :: [V.Vector 8 Double] -> [Double] -> V.Vector 8 Double -> Double
 lpost x y b = (ll x y b) + (lprior b)
 
 -- MALA pre-conditioner
-pre :: (KnownNat p) => R p -- relative scalings of the proposal noise
-pre = fromList [100.0, 1, 1, 1, 1, 1, 25, 1]
+pre :: V.Vector 8 Double -- relative scalings of the proposal noise
+pre = V.fromTuple (100.0, 1, 1, 1, 1, 1, 25, 1)
 
 -- Metropolis-Hastings kernel
 mhKernel :: (StatefulGen g m) => (s -> Double) -> (s -> g -> m s) ->
@@ -142,11 +140,12 @@ malaAd = do
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
-  let xl = rec2l <$> F.toList dat
+  let xl = rec2v <$> F.toList dat
+  print xl
   let y = vector yl :: R 200
   print y
-  let x = ll2m xl :: L 200 8
-  disp 2 x
+  --let x = ll2m xl :: L 200 8
+  --disp 2 x
   -- AD tests
   --let glp = \b -> grVec $ grad (\bv -> (lpost x y (gvecR bv))) b :: R 8 -> R 8
   -- Do MCMC...
