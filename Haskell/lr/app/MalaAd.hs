@@ -49,7 +49,7 @@ rec2v r = V.fromTuple (1.0, fromIntegral $ rgetField @Npreg r, fromIntegral $ rg
            fromIntegral $ rgetField @Bp r, fromIntegral $ rgetField @Skin r,
             rgetField @Bmi r, rgetField @Ped r, fromIntegral $ rgetField @Age r)
 
--- generic casting
+-- generic casting - TODO: probably slow - should try and avoid in inner loop
 cast :: RealFloat a => Double -> a
 cast x = fromRational $ toRational x
 
@@ -70,11 +70,21 @@ pscale :: RealFloat a => V.Vector 8 a -- prior standard deviations
 pscale = V.fromTuple (10.0, 1, 1, 1, 1, 1, 1, 1)
 
 lprior :: RealFloat a => V.Vector 8 a -> a
-lprior b = negate $ V.sum $ (log pscale) + (0.5 * (b * b))
+lprior b = (-4*(log (2.0*pi))) - (V.sum $ ((log pscale) + (0.5 * ((b * b) / (pscale * pscale)))))
            
 -- log-posterior
 lpost :: RealFloat a => [V.Vector 8 Double] -> [Double] -> V.Vector 8 a -> a
 lpost x y b = (ll x y b) + (lprior b)
+
+-- hard-coded gradient (for cross-checking)
+hcglp :: [V.Vector 8 Double] -> [Double] -> V.Vector 8 Double -> V.Vector 8 Double
+hcglp x y b = let
+  glpr = -b / (pscale * pscale)
+  eta = (\xi -> vdot xi b) <$> x
+  p = (\etai -> 1.0 / (1.0 + (exp (-etai)))) <$> eta
+  ymp = (\p -> (fst p) - (snd p)) <$> (zip y p)
+  glll = (\z -> ((\xij -> (snd z)*xij) <$> (fst z))) <$> (zip x ymp)
+  in foldr (+) glpr glll
 
 -- MALA pre-conditioner
 pre :: RealFloat a => V.Vector 8 a -- relative scalings of the proposal noise
@@ -146,6 +156,13 @@ malaAd = do
   let glp = grad (\b -> lpost xl yl b)
   -- Do MCMC...
   let b0 = V.fromTuple (-9.0, 0, 0, 0, 0, 0, 0, 0)
+  -- check log post and gradient
+  print (lprior b0)
+  print (ll xl yl b0)
+  print (lpost xl yl b0)
+  print (glp b0)
+  print (hcglp xl yl b0)
+  -- prepare for MCMC
   gen <- MWC.createSystemRandom
   let kern = malaKernel (lpost xl yl) glp pre 1e-5 :: MWC.Gen RealWorld -> (V.Vector 8 Double, Double) -> IO (V.Vector 8 Double, Double)
   putStrLn "Running MALA with AD now..."

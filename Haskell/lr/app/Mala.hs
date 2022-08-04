@@ -139,6 +139,12 @@ mala = do
   disp 2 x
   -- Do MCMC...
   let b0 = fromList [-9.0, 0, 0, 0, 0, 0, 0, 0]
+  -- check log post and gradient
+  print (lprior b0)
+  print (ll x y b0)
+  print (lpost x y b0)
+  print (glp x y b0)
+  -- prepare for MCMC
   gen <- createSystemRandom
   --pg <- initStdGen
   --gen <- newIOGenM pg
