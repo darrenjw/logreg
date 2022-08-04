@@ -61,7 +61,8 @@ These scripts assume a Python installation with [NumPy](https://numpy.org/) and 
 * [fit-blackjax-mala.py](Python/fit-blackjax-mala.py) - MALA with BlackJAX. Note that the MALA kernel in BlackJAX doesn't seem to allow a pre-conditioner, so a huge thinning interval is used here to get vaguely reasonable results.
 * [fit-blackjax-nuts.py](Python/fit-blackjax-nuts.py) - NUTS sampler from BlackJAX.
 * [fit-numpyro.py](Python/fit-numpyro.py) - NUTS sampler from NumPyro.
-* [fit-pymc3.py](Python/fit-pymc3.py) - NUTS sampler from PyMC3.
+* [fit-pymc3.py](Python/fit-pymc3.py) - NUTS sampler from (old) PyMC3.
+* [fit-pymc.py](Python/fit-pymc.py) - NUTS sampler from (new) PyMC (ie. PyMC (3), version >= 4.0).
 
 
 ### Scala

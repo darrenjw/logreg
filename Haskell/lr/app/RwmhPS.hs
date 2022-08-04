@@ -89,7 +89,7 @@ rwmhPS = do
   putStrLn "RWMH in Haskell (pure version, using splitting)"
   let its = 10000 -- required number of iterations (post thinning and burn-in)
   let burn = 1000 -- NB. This is burn-in BEFORE thinning
-  let th = 1000 -- thinning interval
+  let th = 100 -- thinning interval
   -- read and process data
   dat <- loadData
   let yl = (\x -> if x then 1.0 else 0.0) <$> F.toList (view yy <$> dat)
