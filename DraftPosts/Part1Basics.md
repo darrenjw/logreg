@@ -42,7 +42,7 @@ In this first post in the series, we will use [probabilistic programming](https:
 
 [JAGS](https://sourceforge.net/projects/mcmc-jags/) is a stand-alone [domain specific language](https://en.wikipedia.org/wiki/Domain-specific_language) (DSL) for probabilistic programming. It can be used independently of general purpose programming languages, or called from popular languages for data science such as Python and R. We can describe our model in JAGS with the following code.
 
-```
+```R
   model {
     for (i in 1:n) {
       y[i] ~ dbern(pr[i])
@@ -59,7 +59,7 @@ Note that JAGS uses *precision* as the second parameter of a normal distribution
 #### Stan
 
 [Stan](https://mc-stan.org/) is another stand-alone DSL for probabilistic programming, and has a very sophisticated sampling algorithm, making it a popular choice for non-trivial models. It uses gradient information for sampling, and therefore requires a differentiable log-posterior. We could encode our logistic regression model as follows.
-```
+```R
 data {
   int<lower=1> n;
   int<lower=1> p;
@@ -88,7 +88,7 @@ Note that Stan uses *standard deviation* as the second parameter of the normal d
 JAGS and Stan are *stand-alone* DSLs for probabilistic programming. This has the advantage of making them independent of any particular host (general purpose) programming language. But it also means that they are not able to take advantage of the language and tool support of an existing programming language. An alternative to stand-alone DSLs are *embedded* DSLs (eDSLs). Here, a DSL is embedded as a library or package within an existing (general purpose) programming language. Then, ideally, in the context of PPLs, probabilistic programs can become ordinary values within the host language, and this can have some advantages, especially if the host language is sophisticated. A number of probabilistic programming languages have been implemented as eDSLs in Python. [Python](https://www.python.org/) is not a particularly sophisticated language, so the advantages here are limited, but not negligible.
 
 [PyMC](https://www.pymc.io/) is probably the most popular eDSL PPL in Python. We can encode our model in PyMC as follows.
-```
+```python
 pscale = np.array([10.,1.,1.,1.,1.,1.,1.,1.])
 with pm.Model() as model:
     beta = pm.Normal('beta', 0, pscale, shape=p)
@@ -101,7 +101,7 @@ See the [full runnable script](https://github.com/darrenjw/logreg/blob/main/Pyth
 #### NumPyro
 
 [NumPyro](https://github.com/pyro-ppl/numpyro) is a fork of [Pyro](https://github.com/pyro-ppl/pyro) for NumPy and [JAX](https://jax.readthedocs.io/) (of which more later). We can encode our model with NumPyro as follows.
-```
+```python
 pscale = jnp.array([10.,1.,1.,1.,1.,1.,1.,1.]).astype(jnp.float32)
 def model(X, y):
     coefs = numpyro.sample("beta", dist.Normal(jnp.zeros(p), pscale))
