@@ -4,7 +4,7 @@
 
 ### Introduction
 
-This is the second part in a series of posts on MCMC-based Bayesian inference for a [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) model. If you are new to this series, please go back to **Part 1**.
+This is the second part in a series of posts on MCMC-based Bayesian inference for a [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) model. If you are new to this series, please go back to **[Part 1](https://darrenjw.wordpress.com/2022/08/07/bayesian-inference-for-a-logistic-regression-model-part-1/)**.
 
 In the previous post we looked at the basic modelling concepts, and how to fit the model using a variety of PPLs. In this post we will prepare for doing MCMC by considering the problem of computing the unnormalised log posterior for the model. We will then see how this posterior can be implemented in several different languages and libraries.
 
@@ -78,7 +78,7 @@ and in practice, it is this version that is typically used. To be clear, as an a
 ### R
 
 In R we can create functions for evaluating the log-likelihood, log-prior and log-posterior as follows (assuming that `X` and `y` are in scope).
-```
+```r
 ll = function(beta)
     sum(-log(1 + exp(-(2*y - 1)*(X %*% beta))))
 
@@ -91,7 +91,7 @@ lpost = function(beta) ll(beta) + lprior(beta)
 ### Python
 
 In Python (with NumPy and SciPy) we can define equivalent functions with
-```
+```python
 def ll(beta):
     return np.sum(-np.log(1 + np.exp(-(2*y - 1)*(X.dot(beta)))))
 
@@ -106,7 +106,7 @@ def lpost(beta):
 #### JAX
 
 Python, like R, is a dynamic language, and relatively slow for MCMC algorithms. [JAX](https://jax.readthedocs.io/) is a tensor computation framework for Python that embeds a pure functional differentiable array processing language inside Python. JAX can JIT-compile high-performance code for both CPU and GPU, and has good support for parallelism. It is rapidly becoming the preferred way to develop high-performance sampling algorithms within the Python ecosystem. We can encode our log-posterior in JAX as follows.
-```
+```python
 @jit
 def ll(beta):
     return jnp.sum(-jnp.log(1 + jnp.exp(-(2*y - 1)*jnp.dot(X, beta))))
@@ -125,7 +125,7 @@ def lpost(beta):
 ### Scala
 
 JAX is a pure functional programming language embedded in Python. Pure functional programming languages are intrinsically more scalable and compositional than imperative languages such as R and Python, and are much better suited to exploit concurrency and parallelism. I've given a bunch of talks about this recently, so if you are interested in this, perhaps start with the [materials for my Laplace's Demon talk](https://github.com/darrenjw/talks/blob/main/2022-ld/Readme.md). [Scala](https://www.scala-lang.org/) and Haskell are arguably the current best popular general purpose functional programming languages, so it is possibly interesting to consider the use of these languages for the development of scalable statistical inference codes. Since both languages are statically typed compiled functional languages with powerful type systems, they can be highly performant. However, neither is optimised for numerical (tensor) computation, so you should not expect that they will have performance comparable with optimised tensor computation frameworks such as JAX. We can encode our log-posterior in Scala (with [Breeze](https://github.com/scalanlp/breeze/)) as follows:
-```
+```scala
   def ll(beta: DVD): Double =
       sum(-log(ones + exp(-1.0*(2.0*y - ones)*:*(X * beta))))
 
@@ -139,7 +139,7 @@ JAX is a pure functional programming language embedded in Python. Pure functiona
 #### Spark
 
 [Spark](https://spark.apache.org/docs/latest/) is a Scala library for distributed "big data" processing on clusters of machines. Despite fundamental differences, there is a sense in which Spark for Scala is a bit analogous to JAX for Python: both Spark and JAX are concerned with scalability, but they are targetting rather different aspects of scalability: JAX is concerned with getting regular sized data processing algorithms to run very fast (on GPUs), whereas Spark is concerned with running huge data processing tasks quickly by distributing work over clusters of machines. Despite obvious differences, the fundamental pure functional computational model adopted by both systems is interestingly similar: both systems are based on lazy transformations of immutable data structures using pure functions. This is a fundamental pattern for scalable data processing transcending any particular language, library or framework. We can encode our log posterior in Spark as follows.
-```
+```scala
     def ll(beta: DVD): Double = 
       df.map{row =>
         val y = row.getAs[Double](0)
@@ -156,7 +156,7 @@ JAX is a pure functional programming language embedded in Python. Pure functiona
 ### Haskell
 
 [Haskell](https://www.haskell.org/) is an old, lazy pure functional programming language with an advanced type system, and remains the preferred language for the majority of functional programming language researchers. [Hmatrix](https://hackage.haskell.org/package/hmatrix) is the standard high performance numerical linear algebra library for Haskell, so we can use it to encode our log-posterior as follows.
-```
+```haskell
 ll :: Matrix Double -> Vector Double -> Vector Double -> Double
 ll x y b = (negate) (vsum (cmap log (
                               (scalar 1) + (cmap exp (cmap (negate) (
@@ -178,7 +178,7 @@ Again, a reminder that, here and elsewhere, there are various optimisations coul
 ### Dex
 
 JAX proves that a pure functional DSL for tensor computation can be extremely powerful and useful. But embedding such a language in a dynamic imperative language like Python has a number of drawbacks. [Dex](https://github.com/google-research/dex-lang) is an experimental statically typed stand-alone DSL for differentiable array and tensor programming that attempts to combine some of the correctness and composability benefits of powerful statically typed functional languages like Scala and Haskell with the performance benefits of tensor computation systems like JAX. It is currently rather early its development, but seems very interesting, and is already quite useable. We can encode our log-posterior in Dex as follows.
-```
+```haskell
 def ll (b: (Fin 8)=>Float) : Float =
   neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
 
