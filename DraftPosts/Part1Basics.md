@@ -54,7 +54,7 @@ In this first post in the series, we will use [probabilistic programming](https:
     }
   }
 ```
-Note that JAGS uses *precision* as the second parameter of a normal distribution. See the [full runnable R script](https://github.com/darrenjw/logreg/blob/main/R/fit-rjags.R) for further details. Given this model description, JAGS can constructe an MCMC sampler for the posterior distribution of the model parameters given the data. See the full script for how to feed in the data, run the sampler, and analyse the output.
+Note that JAGS uses *precision* as the second parameter of a normal distribution. See the [full runnable R script](https://github.com/darrenjw/logreg/blob/main/R/fit-rjags.R) for further details. Given this model description, JAGS can construct an MCMC sampler for the posterior distribution of the model parameters given the data. See the full script for how to feed in the data, run the sampler, and analyse the output.
 
 #### Stan
 
