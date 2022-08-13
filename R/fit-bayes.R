@@ -72,8 +72,8 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     mat
 }
 
-out = mcmc(fit$par, mhKernel(lpost, function(x) c(rnorm(1, x[1], 0.2),
-                                      rnorm(p-1, x[-1], 0.02))), thin=1000)
+pre = c(10.0,1,1,1,1,1,5,1)
+out = mcmc(fit$par, mhKernel(lpost, function(x) x + pre*rnorm(p, 0, 0.02)), thin=1000)
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])
 pairs(out[sample(1:10000,1000),],pch=19,cex=0.2)
