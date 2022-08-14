@@ -4,4 +4,6 @@ This directory contains early drafts of the blog posts in the blog series associ
 
 * [Post 1](https://darrenjw.wordpress.com/2022/08/07/bayesian-inference-for-a-logistic-regression-model-part-1/): the basics
 * [Post 2](https://darrenjw.wordpress.com/2022/08/07/bayesian-inference-for-a-logistic-regression-model-part-2/): the log-posterior
+* [Post 3](https://darrenjw.wordpress.com/2022/08/14/bayesian-inference-for-a-logistic-regression-model-part-3/): the Metropolis algorithm
+
 
