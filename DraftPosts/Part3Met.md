@@ -61,7 +61,7 @@ $$
 $$
 so there is no need to evaluate any raw densities. Again, in the case of a symmetric proposal distribution, the $q(\cdot|\cdot)$ terms can be dropped.
 
-Another trick worth noting is that in the case of the simple M-H algorithm described, *using a single update for the entire state space* (and *not* multiple component-wise updates, for example), and assuming that the same M-H kernel is used repeatedly to generate successive states of a Markov chain, then the $\log \pi(\theta)$ term (which in the context of Bayesian inference will typically be the log posterior) will have been computed at the previous update (irrespective of whether or not the previous move was accepted). So if we are careful about how we pass on that old value to the next iteration, we can avoid recomputing the log posterior, and our algorithm will only require one log posterior evaluation per iteration rather than two. In functional programming languages it is often convenient to pass around this current log posterior density evaluation explicity, effectively augmenting the state space of the Markov chain to include the log posterior density.
+Another trick worth noting is that in the case of the simple M-H algorithm described, *using a single update for the entire state space* (and *not* multiple component-wise updates, for example), and assuming that the same M-H kernel is used repeatedly to generate successive states of a Markov chain, then the $\log \pi(\theta)$ term (which in the context of Bayesian inference will typically be the log posterior) will have been computed at the previous update (irrespective of whether or not the previous move was accepted). So if we are careful about how we pass on that old value to the next iteration, we can avoid recomputing the log posterior, and our algorithm will only require one log posterior evaluation per iteration rather than two. In functional programming languages it is often convenient to pass around this current log posterior density evaluation explicitly, effectively augmenting the state space of the Markov chain to include the log posterior density.
 
 ## HoF for a M-H kernel
 
@@ -84,7 +84,7 @@ mhKernel = function(logPost, rprop, dprop = function(new, old, ...) { 1 })
 ```
 Note that the kernel returned requires as input both a current state `x` and its associated log-posterior, `ll`. The new state and log-posterior densities are returned.
 
-We need to use this transition kernel to simulate a Markov chain by successive substition of newly simulated values back into the kernel. In more sophisticated programming languages we will use [streams](https://en.wikipedia.org/wiki/Stream_(computer_science)) for this, but in R we can just use a `for` loop to sample values and write the states into the rows of a matrix.
+We need to use this transition kernel to simulate a Markov chain by successive substitution of newly simulated values back into the kernel. In more sophisticated programming languages we will use [streams](https://en.wikipedia.org/wiki/Stream_(computer_science)) for this, but in R we can just use a `for` loop to sample values and write the states into the rows of a matrix.
 
 ```R
 mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
@@ -110,7 +110,7 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     mat
 }
 ```
-Then, in the context of our running logistic regression example, and using the log-posterior from the previous post, we can contruct our kernel and run it as follows.
+Then, in the context of our running logistic regression example, and using the log-posterior from the previous post, we can construct our kernel and run it as follows.
 ```R
 pre = c(10.0,1,1,1,1,1,5,1)
 out = mcmc(init, mhKernel(lpost,
@@ -202,7 +202,7 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
 ```
 There are really only two slightly tricky things about this code.
 
-The first relates to the way JAX handles psuedo-random numbers. Since JAX is a *pure functional* eDSL, it can't be used in conjunction with the typical psuedo-random number generators often used in *imperative* programming langauges which rely on a *global mutable state*. This can be dealt with reasonably straightforwardly by explicitly passing around the random number state. There is a standard way of doing this that has been common practice in functional programming languages for decades. However, this standard approach is very sequential, and so doesn't work so well in a parallel context. JAX therefore uses a *splittable* random number generator, where new states are created by *splitting* the current state into two (or more). We'll come back to this when we get to the Haskell examples.
+The first relates to the way JAX handles pseudo-random numbers. Since JAX is a *pure functional* eDSL, it can't be used in conjunction with the typical pseudo-random number generators often used in *imperative* programming languages which rely on a *global mutable state*. This can be dealt with reasonably straightforwardly by explicitly passing around the random number state. There is a standard way of doing this that has been common practice in functional programming languages for decades. However, this standard approach is very sequential, and so doesn't work so well in a parallel context. JAX therefore uses a *splittable* random number generator, where new states are created by *splitting* the current state into two (or more). We'll come back to this when we get to the Haskell examples.
 
 The second thing that might be unfamiliar to imperative programmers is the use of the *scan* operation (`jax.lax.scan`) to generate the Markov chain rather than a "for" loop. But *scans* are standard operations in most functional programming languages. 
 
@@ -239,7 +239,7 @@ def mhKernel[S](
 ```
 Note that Scala's static typing does not prevent us from defining a function that is *polymorphic* in the type of the chain state, which we here call `S`. Also note that we are adopting a pragmatic approach to random number generation, exploiting the fact that Scala is not a *pure* functional language, using a mutable generator, and omitting to capture the non-determinism of the `rprop` function (and the returned kernel) in its type signature. In Scala this is a choice, and we could adopt a purer approach if preferred. We'll see what such an approach will look like in Haskell, coming up next.
 
-Now that we have the kernel, we don't need to write an explicit runner function since Scala has good support for streaming data. There are many more-or-less sophisiticated ways that we can work with data streams in Scala, and the choice depends partly on how pure one is being about tracking effects (such as non-determinism), but here I'll just use the simple `LazyList` from the standard library for unfolding the kernel into an *infinite* MCMC chain before thinning and truncating appropriately.
+Now that we have the kernel, we don't need to write an explicit runner function since Scala has good support for streaming data. There are many more-or-less sophisticated ways that we can work with data streams in Scala, and the choice depends partly on how pure one is being about tracking effects (such as non-determinism), but here I'll just use the simple `LazyList` from the standard library for unfolding the kernel into an *infinite* MCMC chain before thinning and truncating appropriately.
 ```scala
   val pre = DenseVector(10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
   def rprop(beta: DVD): DVD = beta + pre *:* (DenseVector(Gaussian(0.0,0.02).sample(p).toArray))
@@ -298,7 +298,7 @@ mKernelP logPost rprop g (x0, ll0) = let
         else (x0, ll0)
   in next
 ```
-Here non-determinism is signalled by passing a generator state (often called a "key" in the context of splittable generators) into a function. Functions recieving a key are responsible for *splitting* it to ensure that no key is ever used more than once.
+Here non-determinism is signalled by passing a generator state (often called a "key" in the context of splittable generators) into a function. Functions receiving a key are responsible for *splitting* it to ensure that no key is ever used more than once.
 
 Once we have a kernel, we need to unfold our Markov chain. When using the monadic generator approach, it is most natural to unfold using a *monadic stream*
 ```haskell
@@ -311,7 +311,7 @@ stepN n fa = if (n == 1)
   then fa
   else (\x -> (fa x) >>= (stepN (n-1) fa))
 ```
-whereas for the explicit approaches it is more natural to unfold into a regular infinite data stream. So, for the explicit sequential approch we could use
+whereas for the explicit approaches it is more natural to unfold into a regular infinite data stream. So, for the explicit sequential approach we could use
 ```haskell
 mcmcP :: (RandomGen g) => s -> (g -> s -> (s, g)) -> g -> DS.Stream s
 mcmcP x0 kern g = DS.unfold stepUf (x0, g)
@@ -364,7 +364,7 @@ Here we combine Dex's state effect with a for loop to unfold the stream. See the
 
 ## Next steps
 
-As previously discussed, none of these codes are optimised, so care should be taken not to over-interpret running times. However, JAX and Dex are noticably faster than the alternatives, even running on a single CPU core. Another interesting feature of both JAX and Dex is that they are *differentiable*. This makes it very easy to develop algorithms using *gradient* information. In subsequent posts we will think about the gradient of our example log-posterior and how we can use gradient information to develop "better" sampling algorithms.
+As previously discussed, none of these codes are optimised, so care should be taken not to over-interpret running times. However, JAX and Dex are noticeably faster than the alternatives, even running on a single CPU core. Another interesting feature of both JAX and Dex is that they are *differentiable*. This makes it very easy to develop algorithms using *gradient* information. In subsequent posts we will think about the gradient of our example log-posterior and how we can use gradient information to develop "better" sampling algorithms.
 
 The complete runnable scripts are all available from this [public github repo](https://github.com/darrenjw/logreg).
 
