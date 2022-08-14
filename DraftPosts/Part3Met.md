@@ -202,7 +202,7 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
 ```
 There are really only two slightly tricky things about this code.
 
-The first relates to the way JAX handles psuedo-random numbers. Since JAX is a *pure functional* eDSL, it can't be used in conjunction with the typical psuedo-random number generators often used in *imperative* programming langauges which rely on a *global mutable state*. This can be dealt with reasonably straightforwardly by explicitly passing around the random number state. There is a standard way of doing this that has been common practice in functional programming languages for decades. However, this standard approach is very sequential, and so doesn't work so well in a parallel context. JAX therefore uses a *splittable* random number generator, where new states are created by *splitting* the current state in two. We'll come back to this when we get to the Haskell examples.
+The first relates to the way JAX handles psuedo-random numbers. Since JAX is a *pure functional* eDSL, it can't be used in conjunction with the typical psuedo-random number generators often used in *imperative* programming langauges which rely on a *global mutable state*. This can be dealt with reasonably straightforwardly by explicitly passing around the random number state. There is a standard way of doing this that has been common practice in functional programming languages for decades. However, this standard approach is very sequential, and so doesn't work so well in a parallel context. JAX therefore uses a *splittable* random number generator, where new states are created by *splitting* the current state into two (or more). We'll come back to this when we get to the Haskell examples.
 
 The second thing that might be unfamiliar to imperative programmers is the use of the *scan* operation (`jax.lax.scan`) to generate the Markov chain rather than a "for" loop. But *scans* are standard operations in most functional programming languages. 
 
@@ -364,10 +364,9 @@ Here we combine Dex's state effect with a for loop to unfold the stream. See the
 
 ## Next steps
 
-As previously discussed, none of these codes are optimised, so care should be taken not to over-interpret running times. However, JAX and Dex are noticably faster than the alternatives, even running on a single CPU core. Another interesting feature of both JAX and Dex is that they are differentiable. This makes it very easy to develop algorithms using gradient information. In subsequent posts we will think about the gradient of our example log-posterior and how we can use gradient information to develop "better" sampling algorithms.
+As previously discussed, none of these codes are optimised, so care should be taken not to over-interpret running times. However, JAX and Dex are noticably faster than the alternatives, even running on a single CPU core. Another interesting feature of both JAX and Dex is that they are *differentiable*. This makes it very easy to develop algorithms using *gradient* information. In subsequent posts we will think about the gradient of our example log-posterior and how we can use gradient information to develop "better" sampling algorithms.
 
-
-Complete runnable scripts are available from this [public github repo](https://github.com/darrenjw/logreg).
+The complete runnable scripts are all available from this [public github repo](https://github.com/darrenjw/logreg).
 
 
 
