@@ -125,7 +125,7 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
 
 pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 
-out = mcmc(beta, malaKernel(lpost, glp, dt=1e-5, pre=pre), thin=1000)
+out = mcmc(beta, malaKernel(lpost, glp, dt=1e-6, pre=pre), thin=2000)
 
 print(out)
 odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
