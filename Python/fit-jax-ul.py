@@ -116,7 +116,7 @@ pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 out = mcmc(beta, ulKernel(lpost, glp, dt=1e-6, pre=pre), thin=4000)
 
 print(out)
-odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf = pd.DataFrame(np.asarray(out), columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
 odf.to_parquet("fit-jax-ul.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
