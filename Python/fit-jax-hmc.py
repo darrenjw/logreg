@@ -148,7 +148,7 @@ pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 out = mcmc(beta, hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/pre), thin=20)
 
 print(out)
-odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf = pd.DataFrame(np.asarray(out), columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
 odf.to_parquet("fit-jax-hmc.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
