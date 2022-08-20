@@ -103,7 +103,7 @@ bjInit = samp.init(beta)
 out = mcmc(bjInit, jit(samp.step))
 
 print(out)
-odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf = pd.DataFrame(np.asarray(out), columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
 odf.to_parquet("fit-blackjax-nuts.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
