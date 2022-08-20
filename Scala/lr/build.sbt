@@ -18,6 +18,9 @@ libraryDependencies  ++= Seq(
   ("com.github.haifengl" %% "smile-scala" % "2.6.0").cross(CrossVersion.for3Use2_13),
   "org.apache.parquet" % "parquet-hadoop" % "1.10.1",  // for parquet
   "org.apache.hadoop" % "hadoop-common" % "3.1.4"      // for parquet
+   //"org.apache.arrow" % "arrow-vector" % "9.0.0",      // for arrow
+   //"org.apache.arrow" % "arrow-memory" % "9.0.0",      // for arrow
+   //"org.apache.arrow" % "arrow-memory-netty" % "9.0.0"   // for arrow
 )
 
 resolvers ++= Seq(
