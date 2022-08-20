@@ -49,10 +49,6 @@ pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 kern = ulKernel (grad lpost) pre 1.0e-6
 init = [-9.0,0,0,0,0,0,0,0]
 
-ll init
-lprior init
-lpost init
-
 out = markov_chain k init (step_n 4000 kern) 10000
 
 mv = meanAndCovariance out

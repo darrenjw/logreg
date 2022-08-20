@@ -56,16 +56,7 @@ def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 kern = ulKernel glp pre 1.0e-6
-init0 = [-9.0,0,0,0,0,0,0,0]
--- try initialising with the MAP
-init = [ -9.142458, 0.095999, 0.031065, -0.005796, -0.000405, 0.080895, 1.229185, 0.039393 ]
-
-
-test = [-9.49232388 ,    0.038040027 ,    0.0350768007 ,   -0.0070231054 ,  -0.0293780733 ,  
-0.0914232582 ,   1.44512236 ,     0.0646929741]
-lpost test
-glp test
-kern k test
+init = [-9.0,0,0,0,0,0,0,0]
 
 out = markov_chain k init (step_n 4000 kern) 10000
 
