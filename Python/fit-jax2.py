@@ -124,7 +124,7 @@ def rprop(key, beta):
 out = mcmc(init, mhKernel(lpost, rprop), thin=1000)
 
 print(out)
-odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf = pd.DataFrame(np.asarray(out), columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
 odf.to_parquet("fit-jax2.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
