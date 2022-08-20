@@ -51,7 +51,7 @@ def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
   sdt = sqrt dt
   spre = sqrt pre
   def kernel (k: Key) (b: (Fin n)=>Float) : (Fin n)=>Float =
-    b + (((0.5)*dt) .* (pre*(glpi b))) + (sdt .* (spre*(randn_vec k)))
+    b + (((0.5)*dt) .* (pre*(glpi b))) + (sdt .* (spre*(clipv (randn_vec k) 100.0)))
   kernel
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
@@ -67,7 +67,7 @@ lpost test
 glp test
 kern k test
 
-out = markov_chain k init (step_n 100 kern) 10000
+out = markov_chain k init (step_n 4000 kern) 10000
 
 mv = meanAndCovariance out
 fst mv -- mean

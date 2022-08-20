@@ -34,18 +34,27 @@ cons 1.5 (to_list v)
 
 list2tab (to_list v) :: (Fin 4)=>Float
 
-instance Parse Float64
-  parseString = \str.
-    mf : Maybe Float = parseString str
-    case mf of
-      Nothing -> Nothing
-      Just f -> Just $ f_to_f64 f
 
 mx64 : Maybe Float64 = parseString "3.0"
 mx64
 
 
+map (\xi. clip (-5.0,5.0) xi) [1.0,2.0, 3, -1.0,10, -8.0]
+
+clipv  [1.0,2.0, 3, -1.0,10, -8.0] 5.0
 
 
+def randn2 (k:Key) : Float =
+  [k1, k2] = split_key k
+  u1 = 1.0 - (rand k1)
+  u2 = rand k2
+  sqrt ((-2.0) * log u1) * cos (2.0 * pi * u2)
+
+def randn2_vec {n} [Ix n] (k:Key) : n=>Float =
+  for i. randn2 (ixkey k i)
+
+z: (Fin 100000000=>Float) = randn_vec (new_key 42)
+maximum z
+minimum z
 
 -- eof

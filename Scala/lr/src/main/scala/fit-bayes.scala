@@ -69,5 +69,5 @@ def mhKernel[S](
   print(odf)
   //smile.write.arrow(odf, "fit-bayes.arrow")
   smile.write.csv(odf, "fit-bayes.csv")
-  Mcmc.summary(out,true)
+  Mcmc.summary(out,false)
   println("Done.")

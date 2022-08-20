@@ -99,6 +99,8 @@ The Haskell examples use [stack](https://docs.haskellstack.org/en/stable/README/
 The [Dex](https://github.com/google-research/dex-lang) examples rely only on a basic Dex installation. See the [readme](Dex/Readme.md) in the `Dex` directory for further details. Note that Dex is an early-stage research project lacking many of the tools and libraries one would normally expect. It's also rather lacking documentation. However, it's interesting, pure functional, strongly typed, differentiable, and fast.
 
 * [fit-bayes.dx](Dex/fit-bayes.dx) - Random walk MH in Dex. Dex uses a splittable random number generator, similar to JAX. It's not quite as fast as JAX, but faster than anything else I've tried, including my C code.
+* [fit-ul.dx](Dex/fit-ul.dx) - Unadjusted Langevin in Dex (approximate), with hard-coded gradients.
+* [fit-ul-ad.dx](Dex/fit-ul-ad.dx) - Unadjusted Langevin in Dex (approximate), with auto-differentiated gradients.
 * [fit-mala.dx](Dex/fit-mala.dx) - MALA in Dex, with hard-coded gradients.
 * [fit-mala-ad.dx](Dex/fit-mala-ad.dx) - MALA in Dex, with auto-differentiated gradients. Roughly two to three times slower than using hard-coded gradients, which seems reasonable.
 * [fit-hmc.dx](Dex/fit-hmc.dx) - HMC in Dex, with hard-coded gradients.
