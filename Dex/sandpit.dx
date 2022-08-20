@@ -32,12 +32,20 @@ v = [1.0,2,3,4]
 
 cons 1.5 (to_list v)
 
-
-def list2tab {n a} [Ix n] (l: List a): n=>a =
-  (AsList ll t) = l
-  unsafe_cast_table n t
-
 list2tab (to_list v) :: (Fin 4)=>Float
+
+instance Parse Float64
+  parseString = \str.
+    mf : Maybe Float = parseString str
+    case mf of
+      Nothing -> Nothing
+      Just f -> Just $ f_to_f64 f
+
+mx64 : Maybe Float64 = parseString "3.0"
+mx64
+
+
+
 
 
 -- eof

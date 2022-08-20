@@ -116,33 +116,13 @@ pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 out = mcmc(beta, ulKernel(lpost, glp, dt=1e-6, pre=pre), thin=4000)
 
 print(out)
+odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf.to_parquet("fit-jax-ul.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
 print(summ)
 print("\nMean: " + str(summ.mean))
 print("Variance: " + str(summ.variance))
-
-import matplotlib.pyplot as plt
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
-    axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("jax-ul-trace.png")
-#plt.show()
-
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].hist(out[:,i], 50)
-    axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("jax-ul-hist.png")
-#plt.show()
-
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
-    axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("jax-ul-acf.png")
-#plt.show()
 
 
 

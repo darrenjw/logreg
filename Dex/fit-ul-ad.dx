@@ -1,0 +1,60 @@
+'# Unadjusted Langevin using Dex with AD
+
+-- load some generic utility functions
+import djwutils
+
+'## now read and process the data
+
+dat = unsafe_io do read_file "../pima.data"
+(AsList _ tab) = parse_tsv ' ' dat
+atab = map (cons "1.0") tab
+att = map (\r. list2tab r :: (Fin 9)=>String) atab
+xStr = map (\r. slice r 0 (Fin 8)) att
+xmb = map (\r. map parseString r) xStr :: (Fin 200)=>(Fin 8)=>(Maybe Float)
+x = map (\r. map from_just r) xmb :: (Fin 200)=>(Fin 8)=>Float
+yStrM = map (\r. slice r 8 (Fin 1)) att
+yStr = (transpose yStrM).(0@_)
+y = map (\s. select (s == "Yes") 1.0 0.0) yStr
+
+x
+y
+
+'## now set up for MCMC
+
+def ll (b: (Fin 8)=>Float) : Float =
+  neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
+
+pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
+prscale = map (\ x. 1.0/x) pscale
+
+def lprior (b: (Fin 8)=>Float) : Float =
+  bs = b*prscale
+  neg $ sum ((log pscale) + (0.5 .* (bs*bs)))
+
+def lpost (b: (Fin 8)=>Float) : Float =
+  (ll b) + (lprior b)
+
+k = new_key 40
+
+def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
+    (pre: (Fin n)=>Float) (dt: Float) :
+    Key -> (Fin n)=>Float -> (Fin n)=>Float =
+  sdt = sqrt dt
+  spre = sqrt pre
+  def kernel (k: Key) (b: (Fin n)=>Float) : (Fin n)=>Float =
+    b + ((0.5)*dt) .* (pre*(glpi b)) + sdt .* (spre*(randn_vec k))
+  kernel
+
+pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
+kern = ulKernel (grad lpost) pre 1.0e-6
+init = [-9.0,0,0,0,0,0,0,0]
+out = markov_chain k init (step_n 100 kern) 10000
+
+mv = meanAndCovariance out
+fst mv -- mean
+snd mv -- (co)variance matrix
+
+unsafe_io do write_file "fit-ul-ad.tsv" (to_tsv out)
+
+
+-- eof

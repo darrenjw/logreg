@@ -108,33 +108,13 @@ out = mcmc(res.x,
            hmcKernel(lpost, glp, eps=1e-3, l=50, dmm=1/pre), thin=20)
 
 print(out)
+odf = pd.DataFrame(out, columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
+odf.to_parquet("fit-np-hmc.parquet")
 print("Posterior summaries:")
 summ = scipy.stats.describe(out)
 print(summ)
 print("\nMean: " + str(summ.mean))
 print("Variance: " + str(summ.variance))
-
-import matplotlib.pyplot as plt
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].plot(range(out.shape[0]), out[:,i])
-    axis[i // 2, i % 2].set_title(f'Trace plot for the variable {i}')
-plt.savefig("np-hmc-trace.png")
-#plt.show()
-
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].hist(out[:,i], 50)
-    axis[i // 2, i % 2].set_title(f'Histogram for variable {i}')
-plt.savefig("np-hmc-hist.png")
-#plt.show()
-
-figure, axis = plt.subplots(4, 2)
-for i in range(8):
-    axis[i // 2, i % 2].acorr(out[:,i] - np.mean(out[:,i]), maxlags=100)
-    axis[i // 2, i % 2].set_title(f'ACF for variable {i}')
-plt.savefig("np-hmc-acf.png")
-#plt.show()
 
 
 

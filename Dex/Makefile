@@ -4,6 +4,8 @@ LIBPATH=BUILTIN_LIBRARIES:.
 
 FORCE:
 	make fit-bayes.out
+	make fit-ul.out
+	make fit-ul-ad.out
 	make fit-mala.out
 	make fit-mala-ad.out
 	make fit-hmc.out
