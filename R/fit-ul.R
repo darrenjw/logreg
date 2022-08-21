@@ -74,14 +74,14 @@ mcmc = function(init, kernel, iters = 10000, thin = 10, verb = TRUE) {
     mat
 }
 
-ulKernel = function(lpi, glpi, dt = 1e-4, pre = 1) {
+ulKernel = function(glpi, dt = 1e-4, pre = 1) {
     sdt = sqrt(dt)
     spre = sqrt(pre)
     advance = function(x) x + 0.5*pre*glpi(x)*dt
     function(x, ll) rnorm(p, advance(x), spre*sdt)
 }
 
-out = mcmc(fit$par, ulKernel(lpost, glp, dt=1e-6, pre=c(100,1,1,1,1,1,25,1)), thin=2000)
+out = mcmc(fit$par, ulKernel(glp, dt=1e-6, pre=c(100,1,1,1,1,1,25,1)), thin=2000)
 
 mcmcSummary(out)
 image(cor(out)[ncol(out):1,])

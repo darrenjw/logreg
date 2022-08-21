@@ -84,8 +84,9 @@ print(jnp.linalg.norm(glp(beta)))
 
 print("Next, unadjusted Langevin (approximate). Be patient...")
 
-def ulKernel(lpi, glpi, dt = 1e-4, pre = 1):
+def ulKernel(lpi, dt = 1e-4, pre = 1):
     p = len(init)
+    glpi = jit(grad(lpost))
     sdt = jnp.sqrt(dt)
     spre = jnp.sqrt(pre)
     advance = jit(lambda x: x + 0.5*pre*glpi(x)*dt)
@@ -113,7 +114,7 @@ def mcmc(init, kernel, thin = 10, iters = 10000):
 
 pre = jnp.array([100.,1.,1.,1.,1.,1.,25.,1.]).astype(jnp.float32)
 
-out = mcmc(beta, ulKernel(lpost, glp, dt=1e-6, pre=pre), thin=4000)
+out = mcmc(beta, ulKernel(lpost, dt=1e-6, pre=pre), thin=4000)
 
 print(out)
 odf = pd.DataFrame(np.asarray(out), columns=["b0","b1","b2","b3","b4","b5","b6","b7"])
