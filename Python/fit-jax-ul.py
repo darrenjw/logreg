@@ -86,7 +86,7 @@ print("Next, unadjusted Langevin (approximate). Be patient...")
 
 def ulKernel(lpi, dt = 1e-4, pre = 1):
     p = len(init)
-    glpi = jit(grad(lpost))
+    glpi = jit(grad(lpi))
     sdt = jnp.sqrt(dt)
     spre = jnp.sqrt(pre)
     advance = jit(lambda x: x + 0.5*pre*glpi(x)*dt)
