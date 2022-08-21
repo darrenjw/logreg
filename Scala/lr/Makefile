@@ -20,7 +20,7 @@ fit-par.csv: src/main/scala/fit-par.scala
 	sbt "runMain par"
 
 fit-ul.csv: src/main/scala/fit-ul.scala
-	sbt -mem 4000 "runMain ul"
+	sbt -mem 6000 "runMain ul"
 
 fit-mala.csv: src/main/scala/fit-mala.scala
 	sbt "runMain mala"

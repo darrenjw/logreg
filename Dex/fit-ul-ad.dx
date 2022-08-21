@@ -36,16 +36,17 @@ def lpost (b: (Fin 8)=>Float) : Float =
 
 k = new_key 40
 
-def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
+def ulKernel {n} (lpi: (Fin n)=>Float -> Float)
     (pre: (Fin n)=>Float) (dt: Float)
     (b: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
+  glpi = grad lpi
   sdt = sqrt dt
   spre = sqrt pre
   b + ((0.5)*dt) .* (pre*(glpi b)) +
     sdt .* (spre*(clipv (randn_vec k) 100.0))
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
-kern = ulKernel (grad lpost) pre 1.0e-6
+kern = ulKernel lpost pre 1.0e-6
 init = [-9.0,0,0,0,0,0,0,0]
 
 out = markov_chain init (step_n 4000 kern) 10000 k

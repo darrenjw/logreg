@@ -11,6 +11,13 @@ import breeze.stats.distributions.Gaussian
 import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import smile.data.pimpDataFrame
 
+def ulKernel(glp: DVD => DVD, pre: DVD, dt: Double): DVD => DVD =
+  val sdt = math.sqrt(dt)
+  val spre = sqrt(pre)
+  def advance(beta: DVD): DVD =
+    beta + (0.5*dt)*(pre*:*glp(beta))
+  beta => advance(beta) + sdt*spre.map(Gaussian(0,_).sample())
+
 @main def ul() =
   println("First read and process the data")
   val df = smile.read.parquet("../../pima.parquet")
@@ -32,28 +39,15 @@ import smile.data.pimpDataFrame
   println(lr.summary)
   println(lr.coefficients)
   println("Now do unadjusted Langevin")
-  def ll(beta: DVD): Double =
-      sum(-log(ones + exp(-1.0*(2.0*y - ones)*:*(X * beta))))
-  def lprior(beta: DVD): Double =
-    Gaussian(0,10).logPdf(beta(0)) + 
-      sum(beta(1 until p).map(Gaussian(0,1).logPdf(_)))
-  def lpost(beta: DVD): Double = ll(beta) + lprior(beta)
-  println(lpost(lr.coefficients))
   val pvar = DenseVector(100.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0)
   def glp(beta: DVD): DVD =
     val glpr = -beta /:/ pvar
     val gll = (X.t)*(y - ones/:/(ones + exp(-X*beta)))
     glpr + gll
   println(glp(lr.coefficients))
-  val dt = 1e-6 // set dt here
-  val sdt = math.sqrt(dt)
-  val spre = DenseVector(10.0,1.0,1.0,1.0,1.0,1.0,5.0,1.0)
-  val pre = spre *:* spre
-  def advance(beta: DVD): DVD =
-    beta + (0.5*dt)*(pre*:*glp(beta))
-  def rprop(beta: DoubleState): DoubleState =
-    advance(beta) + sdt*spre.map(Gaussian(0,_).sample())
-  val s = LazyList.iterate(lr.coefficients)(rprop)
+  val pre = DenseVector(100.0,1.0,1.0,1.0,1.0,1.0,25.0,1.0)
+  val kern = ulKernel(glp, pre, 1.0e-6)
+  val s = LazyList.iterate(lr.coefficients)(kern)
   val out = s.drop(150).thin(2000).take(10000)
   println("Starting unadjusted Langevin run now. Be patient...")
   //out.zipWithIndex.foreach(println)
