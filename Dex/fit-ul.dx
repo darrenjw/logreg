@@ -21,18 +21,8 @@ y
 
 '## now set up for MCMC
 
-def ll (b: (Fin 8)=>Float) : Float =
-  neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
-
 pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
 prscale = map (\ x. 1.0/x) pscale
-
-def lprior (b: (Fin 8)=>Float) : Float =
-  bs = b*prscale
-  neg $ sum ((log pscale) + (0.5 .* (bs*bs)))
-
-def lpost (b: (Fin 8)=>Float) : Float =
-  (ll b) + (lprior b)
 
 def glp (b: (Fin 8)=>Float) : (Fin 8)=>Float =
   glpr = -b*prscale*prscale
