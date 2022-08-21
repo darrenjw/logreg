@@ -78,17 +78,17 @@ def parse_tsv (sep: Word8) (input: String): List (List String) =
 
 -- some Markov chain utilities
 
-def step_n {s} (n: Nat) (kern: Key -> s -> s) : Key -> s -> s =
-  def go (k: Key) (state: s) : s =
+def step_n {s} (n: Nat) (kern: s -> Key -> s) : s -> Key -> s =
+  def go (state: s) (k: Key) : s =
     yield_state state \st.
       for i:(Fin n).
-        st := kern (ixkey k i) (get st)
+        st := kern (get st) (ixkey k i)
   go
 
-def markov_chain {s} (k: Key) (init: s) (kern: Key -> s -> s) (its: Nat) : Fin its => s =
+def markov_chain {s} (init: s) (kern: s -> Key -> s) (its: Nat) (k: Key) : Fin its => s =
   with_state init \st.
     for i:(Fin its).
-      x = kern (ixkey k i) (get st)
+      x = kern (get st) (ixkey k i)
       st := x
       x
 

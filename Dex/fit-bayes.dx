@@ -38,16 +38,16 @@ def lpost (b: (Fin 8)=>Float) : Float =
 
 pre = [10.0,1,1,1,1,1,5,1] -- pre-conditioner - relative weights of proposal SDs
 
-def rprop (k: Key) (b: (Fin 8)=>Float) : (Fin 8)=>Float =
+def rprop (b: (Fin 8)=>Float) (k: Key) : (Fin 8)=>Float =
   b + 0.02 .* (pre * (randn_vec k))
 
 k = new_key 42
 
-def mKernel {s} (lpost: s -> Float) (rprop: Key -> s -> s) : Key -> (s & Float) -> (s & Float) =
-  def kern (k: Key) (sll: (s & Float)) : (s & Float) =
+def mKernel {s} (lpost: s -> Float) (rprop: s-> Key -> s) : (s & Float) -> Key -> (s & Float) =
+  def kern (sll: (s & Float)) (k: Key) : (s & Float) =
     (x0, ll0) = sll
     [k1, k2] = split_key k
-    x = rprop k1 x0
+    x = rprop x0 k1
     ll = lpost x
     a = ll - ll0
     u = rand k2
@@ -60,7 +60,7 @@ init = [-9.0,0,0,0,0,0,0,0]
 
 '## run the MCMC
 
-out = markov_chain k (init, -1.0e50) (step_n 1000 kern) 10000
+out = markov_chain (init, -1.0e50) (step_n 1000 kern) 10000 k
 
 '## analyse the MCMC output
 

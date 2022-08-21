@@ -38,8 +38,8 @@ k = new_key 42
 
 -- Metropolis with deterministic proposal
 def mdKernel {s} (lpost: s -> Float) (prop: s -> s) :
-    Key -> s -> s =
-  def kern (k: Key) (x0: s) : s =
+    s -> Key -> s =
+  def kern (x0: s) (k: Key) : s =
     x = prop x0
     ll0 = lpost x0
     ll = lpost x
@@ -50,7 +50,7 @@ def mdKernel {s} (lpost: s -> Float) (prop: s -> s) :
 
 def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
     (dmm: (Fin n)=>Float) (eps: Float) (l: Nat) :
-    Key -> (Fin n)=>Float -> (Fin n)=>Float =
+    (Fin n)=>Float -> Key -> (Fin n)=>Float =
   sdmm = sqrt dmm
   idmm = map (\x. 1.0/x) dmm
   glpi = grad lpi
@@ -72,11 +72,11 @@ def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
     (q, p) = qp
     leapf q p
   mk = mdKernel alpi prop
-  def kern (k: Key) (q0: (Fin n)=>Float) : (Fin n)=>Float =
+  def kern (q0: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
     [k1, k2] = split_key k
     z = randn_vec k1
     p0 = sdmm * z
-    (q, p) = mk k2 (q0, p0)
+    (q, p) = mk (q0, p0) k2
     q
   kern
     
@@ -86,7 +86,7 @@ kern = hmcKernel lpost (map (\x. 1.0/x) pre) 1.0e-3 49
 
 init = [-9.0,0,0,0,0,0,0,0]
 
-mat = markov_chain k init (step_n 20 kern) 10000
+mat = markov_chain init (step_n 20 kern) 10000 k
 
 mv = meanAndCovariance mat
 fst mv -- mean

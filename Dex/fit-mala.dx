@@ -41,12 +41,12 @@ def glp (b: (Fin 8)=>Float) : (Fin 8)=>Float =
 
 k = new_key 42
 
-def mhKernel {s} (lpost: s -> Float) (rprop: Key -> s -> s) (dprop: s -> s -> Float) :
-    Key -> (s & Float) -> (s & Float) =
-  def kern (k: Key) (sll: (s & Float)) : (s & Float) =
+def mhKernel {s} (lpost: s -> Float) (rprop: s -> Key -> s) (dprop: s -> s -> Float) :
+    (s & Float) -> Key -> (s & Float) =
+  def kern (sll: (s & Float)) (k: Key) : (s & Float) =
     (x0, ll0) = sll
     [k1, k2] = split_key k
-    x = rprop k1 x0
+    x = rprop x0 k1
     ll = lpost x
     a = ll - ll0 + (dprop x0 x) - (dprop x x0)
     u = rand k2
@@ -55,14 +55,14 @@ def mhKernel {s} (lpost: s -> Float) (rprop: Key -> s -> s) (dprop: s -> s -> Fl
 
 def malaKernel {n} (lpi: (Fin n)=>Float -> Float) (glpi: (Fin n)=>Float -> (Fin n)=>Float)
     (pre: (Fin n)=>Float) (dt: Float) :
-    Key -> ((Fin n)=>Float & Float) -> ((Fin n)=>Float & Float) =
+    ((Fin n)=>Float & Float) -> Key -> ((Fin n)=>Float & Float) =
   sdt = sqrt dt
   spre = sqrt pre
   v = dt .* pre
   vinv = map (\ x. 1.0/x) v
   def advance (beta: (Fin n)=>Float) : (Fin n)=>Float =
     beta + (0.5*dt) .* (pre*(glpi beta))
-  def rprop (k: Key) (beta: (Fin n)=>Float) : (Fin n)=>Float =
+  def rprop (beta: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
     (advance beta) + sdt .* (spre*(randn_vec k))
   def dprop (new: (Fin n)=>Float) (old: (Fin n)=>Float) : Float =
     ao = advance old
@@ -76,7 +76,7 @@ kern = malaKernel lpost glp pre 1.0e-5
 
 init = [-9.0,0,0,0,0,0,0,0]
 
-out = markov_chain k (init, -1.0e50) (step_n 1000 kern) 10000
+out = markov_chain (init, -1.0e50) (step_n 1000 kern) 10000 k
 
 mat = map fst out -- ditch log-posterior evaluations
 mv = meanAndCovariance mat
