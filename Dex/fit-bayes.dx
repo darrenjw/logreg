@@ -43,16 +43,15 @@ def rprop (b: (Fin 8)=>Float) (k: Key) : (Fin 8)=>Float =
 
 k = new_key 42
 
-def mKernel {s} (lpost: s -> Float) (rprop: s-> Key -> s) : (s & Float) -> Key -> (s & Float) =
-  def kern (sll: (s & Float)) (k: Key) : (s & Float) =
-    (x0, ll0) = sll
-    [k1, k2] = split_key k
-    x = rprop x0 k1
-    ll = lpost x
-    a = ll - ll0
-    u = rand k2
-    select (log u < a) (x, ll) (x0, ll0)
-  kern
+def mKernel {s} (lpost: s -> Float) (rprop: s-> Key -> s)
+    (sll: (s & Float)) (k: Key) : (s & Float) =
+  (x0, ll0) = sll
+  [k1, k2] = split_key k
+  x = rprop x0 k1
+  ll = lpost x
+  a = ll - ll0
+  u = rand k2
+  select (log u < a) (x, ll) (x0, ll0)
 
 kern = mKernel lpost rprop
 

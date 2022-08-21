@@ -37,13 +37,12 @@ def lpost (b: (Fin 8)=>Float) : Float =
 k = new_key 40
 
 def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
-    (pre: (Fin n)=>Float) (dt: Float) :
-    (Fin n)=>Float -> Key -> (Fin n)=>Float =
+    (pre: (Fin n)=>Float) (dt: Float)
+    (b: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
   sdt = sqrt dt
   spre = sqrt pre
-  def kernel (b: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
-    b + ((0.5)*dt) .* (pre*(glpi b)) + sdt .* (spre*(clipv (randn_vec k) 100.0))
-  kernel
+  b + ((0.5)*dt) .* (pre*(glpi b)) +
+    sdt .* (spre*(clipv (randn_vec k) 100.0))
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 kern = ulKernel (grad lpost) pre 1.0e-6

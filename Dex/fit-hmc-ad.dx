@@ -37,20 +37,18 @@ def lpost (b: (Fin 8)=>Float) : Float =
 k = new_key 42
 
 -- Metropolis with deterministic proposal
-def mdKernel {s} (lpost: s -> Float) (prop: s -> s) :
-    s -> Key -> s =
-  def kern (x0: s) (k: Key) : s =
-    x = prop x0
-    ll0 = lpost x0
-    ll = lpost x
-    a = ll - ll0
-    u = rand k
-    select (log u < a) x x0
-  kern
+def mdKernel {s} (lpost: s -> Float) (prop: s -> s)
+    (x0: s) (k: Key) : s =
+  x = prop x0
+  ll0 = lpost x0
+  ll = lpost x
+  a = ll - ll0
+  u = rand k
+  select (log u < a) x x0
 
 def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
-    (dmm: (Fin n)=>Float) (eps: Float) (l: Nat) :
-    (Fin n)=>Float -> Key -> (Fin n)=>Float =
+    (dmm: (Fin n)=>Float) (eps: Float) (l: Nat)
+    (q0: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
   sdmm = sqrt dmm
   idmm = map (\x. 1.0/x) dmm
   glpi = grad lpi
@@ -72,13 +70,11 @@ def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
     (q, p) = qp
     leapf q p
   mk = mdKernel alpi prop
-  def kern (q0: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
-    [k1, k2] = split_key k
-    z = randn_vec k1
-    p0 = sdmm * z
-    (q, p) = mk (q0, p0) k2
-    q
-  kern
+  [k1, k2] = split_key k
+  z = randn_vec k1
+  p0 = sdmm * z
+  (q, p) = mk (q0, p0) k2
+  q
     
 pre = [100.0, 1, 1, 1, 1, 1, 25, 1]
 
