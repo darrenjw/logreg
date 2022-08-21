@@ -37,10 +37,6 @@ def lpost (b: (Fin 8)=>Float) : Float =
 def glp (b: (Fin 8)=>Float) : (Fin 8)=>Float =
   glpr = -b*prscale*prscale
   gll = (transpose x) **. (y - (map (\eta. 1.0/(1.0 + eta)) (exp (-x **. b))))
-  --unsafe_io do print "glp"
-  --unsafe_io do map (\x. print (show x)) b -- debug
-  --unsafe_io do map (\x. print (show x)) (glpr + gll) -- debug
-  --unsafe_io do print (show (lpost b)) -- debug
   glpr + gll
 
 k = new_key 42
