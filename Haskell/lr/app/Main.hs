@@ -4,6 +4,7 @@ module Main where
 import Rwmh
 import RwmhP
 import RwmhPS
+import Lang
 import Mala
 import MalaAd
 import Hmc
@@ -17,7 +18,7 @@ main = do
   let l = length args
   case l of
     0 -> do
-      putStrLn "Choices: rwmh rwmhP rwmhPS mala (malaAd) hmc"
+      putStrLn "Choices: rwmh rwmhP rwmhPS lang mala (malaAd) hmc"
       exitFailure
     1 -> do
       let choice = head args
@@ -25,6 +26,7 @@ main = do
         "rwmh" -> rwmh
         "rwmhP" -> rwmhP
         "rwmhPS" -> rwmhPS
+        "lang" -> lang
         "mala" -> mala
         "malaAd" -> malaAd
         "hmc" -> hmc

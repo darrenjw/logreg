@@ -51,6 +51,7 @@ executable lr-exe
   main-is: Main.hs
   other-modules:
       Hmc
+      Lang
       Mala
       MalaAd
       Rwmh
