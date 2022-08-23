@@ -37,7 +37,7 @@ def ulKernel {n} (glpi: (Fin n)=>Float -> (Fin n)=>Float)
   sdt = sqrt dt
   spre = sqrt pre
   b + (((0.5)*dt) .* (pre*(glpi b))) +
-    (sdt .* (spre*(clipv (randn_vec k) 100.0)))
+    (sdt .* (spre*(randn_vec k)))
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 kern = ulKernel glp pre 1.0e-6
