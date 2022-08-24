@@ -78,13 +78,14 @@ def parse_tsv (sep: Word8) (input: String): List (List String) =
 
 
 -- Random variables
-def exponential (r: Float) (k: Key) : Float =
+def expon (r: Float) (k: Key) : Float =
   (log (1.0 - (rand k))) / -r
 
-def gaussian (mu: Float) (sig: Float) (k: Key) : Float =
+def gauss (mu: Float) (sig: Float) (k: Key) : Float =
   mu + (sig * (randn k))
 
-
+def unif (l: Float) (u: Float) (k: Key) : Float =
+  l + ((u - l) * (rand k))
 
 
 -- some Markov chain utilities
