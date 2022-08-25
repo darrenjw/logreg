@@ -1,19 +1,145 @@
--- stats.dx
--- probability distributions and other functions useful for statistical computing
+'# stats
+Probability distributions and other functions useful for statistical computing
 
 
+'## Univariate probability distributions
+Simulation and evaluation of random variables. Random variables are listed in alphabetical order except for the exponential distribution, which is listed first as an exemplar complete implementation.
+
+'**Naming convention**: the current naming convention is:
+```
+| *    | Random variate                                            |
+| *_ld | Log of the probability density or mass function           |
+| *_lp | Log of the probability function (the CDF)                 |
+| *_ls | Log of the survivor function (the complement of the CDF)  |
+| *_q  | The quantile function (inverse of the CDF)                |
+```
+where `*` is the name of a distribution.
+
+'### Exponential
+Parameterised by the *rate*, `r > 0`, so that the mean of the distribution is `1/r`.
+
+-- log density
+def exponential_ld (r:Float) (x:Float) : Float =
+  if (x < 0.0)
+    then -infinity
+    else (log r) - (r * x)
+
+-- log probability (cumulative distribution function, CDF)
+def exponential_lp (r:Float) (x:Float) : Float =
+  if (x < 0.0)
+    then -infinity
+    else log1p (-exp (-r * x))
+
+-- log survivor function (one minus the CDF)
+def exponential_ls (r:Float) (x:Float) : Float =
+  if (x < 0.0)
+    then 0.0
+    else -r * x
+
+-- quantile function
+def exponential_q (r:Float) (q:Float) : Float =
+  (log1p (-q)) / -r
+  
+-- random variates
+def exponential (r:Float) (k:Key) : Float =
+  exponential_q r (rand k)
 
 
--- Random variables
-def exponential (r: Float) (k: Key) : Float =
-  (log (1.0 - (rand k))) / -r
+'### Bernoulli distribution
+Parameterised by its "success" probability, `p`.
 
-def gaussian (mu: Float) (sig: Float) (k: Key) : Float =
+-- log density (mass)
+def bernoulli_ld (p: Float) (b: Bool) : Float =
+  if (b)
+   then log p
+   else log1p (-p)
+
+-- TODO: move "bern" here from prelude and rename
+def bernoulli (p:Float) (k:Key) : Bool =
+  bern p k
+
+'### Binomial distribution
+Parameterised by the number of trials, `n`, and the success probability, `p`. Mean is `np`.
+
+-- log density (mass)
+def binomial_ld (n:Nat) (p:Float) (x:Nat) =
+  nf = n_to_f n
+  xf = n_to_f x
+  (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
+    (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
+
+-- TODO: move "binom" here from prelude and rename
+def binomial (n:Nat) (p:Float) (k:Key) : Nat =
+  binom n p k
+
+'### Gaussian distribution
+Parameterised by its *mean*, `mu`, and *standard deviation*, `sig`. ie. **not** variance or precision.
+
+def gaussian_ld (mu:Float) (sig:Float) (x:Float) : Float =
+  -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig))) 
+
+-- TODO: "gaussian_lp" would be OK if some sort of "erf" function was available
+
+def gaussian (mu:Float) (sig:Float) (k:Key) : Float =
   mu + (sig * (randn k))
 
-def uniform (l: Float) (u: Float) (k: Key) : Float =
-  l + ((u - l) * (rand k))
+'### Geometric distribution
+Parameterised by success probability, `p`. Mean is `1/p`.
 
+def geometric_ld (p:Float) (n:Nat) : Float =
+  nf = n_to_f n
+  ((nf-1)*(log1p (-p))) + (log p)
+
+def geometric_lp (p:Float) (n:Nat) : Float =
+  nf = n_to_f n
+  log1p (-pow (1-p) nf)
+
+def geometric_ls (p:Float) (n:Nat) : Float =
+  (n_to_f n) * (log1p (-p))
+
+-- TODO: Will need state for generation...
+
+
+'### Poisson distribution
+Parameterised by its rate, `r > 0`. Mean is `r`.
+
+def poisson_ld (r:Float) (n:Nat) : Float =
+  nf = n_to_f n
+  (nf * (log r)) - r - lgamma(nf + 1)
+
+-- TODO: move "poisson" here from prelude
+-- def poisson (r:Float) (k:Key) : Nat
+
+'### Uniform distribution
+A continuous distribution uniform on an interval determined by a lower bound, `l`, and upper bound, `u > l`. Mean is `(l+u)/2`.
+
+def uniform_ld (l:Float) (u:Float) (x:Float) : Float =
+  if (x >= l)&&(x <= u)
+    then -log (u - l)
+    else -infinity
+
+def uniform_lp (l:Float) (u:Float) (x:Float) : Float =
+  if (x < l)
+    then -infinity
+    else if (x > u)
+      then 0.0
+      else (log (x-l)) - (log (u-l))
+
+def uniform_ls (l:Float) (u:Float) (x:Float) : Float =
+  if (x < l)
+    then 0.0
+    else if (x > u)
+      then -infinity
+      else (log (u-x)) - (log (u-l))
+
+def uniform_q (l:Float) (u:Float) (q:Float) : Float =
+  l + ((u - l) * q)
+
+def uniform (l:Float) (u:Float) (k:Key) : Float =
+  uniform_q l u (rand k)
+
+
+'## Data summaries
 
 
 

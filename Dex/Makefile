@@ -3,6 +3,8 @@
 LIBPATH=BUILTIN_LIBRARIES:.
 
 FORCE:
+	make djwutils.html
+	make stats.html
 	make fit-bayes.out
 	make fit-ul.out
 	make fit-ul-ad.out
@@ -13,6 +15,9 @@ FORCE:
 
 %.tsv: %.dx djwutils.dx
 	time dex --lib-path $(LIBPATH) script $<
+
+%.html: %.dx djwutils.dx
+	dex --lib-path $(LIBPATH) script $< --outfmt html > $@
 
 %.out: %.tsv
 	./analyse.R $< > $@
@@ -30,6 +35,13 @@ repl:
 sandpit:
 	dex --lib-path $(LIBPATH) script sandpit.dx
 
+stats:
+	make stats.html
+	xdg-open stats.html
+
+utils:
+	make djwutils.html
+	xdg-open djwutils.html
 
 # eof
 
