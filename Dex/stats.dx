@@ -1,0 +1,23 @@
+-- stats.dx
+-- probability distributions and other functions useful for statistical computing
+
+
+
+
+-- Random variables
+def exponential (r: Float) (k: Key) : Float =
+  (log (1.0 - (rand k))) / -r
+
+def gaussian (mu: Float) (sig: Float) (k: Key) : Float =
+  mu + (sig * (randn k))
+
+def uniform (l: Float) (u: Float) (k: Key) : Float =
+  l + ((u - l) * (rand k))
+
+
+
+
+
+
+-- eof
+

@@ -76,18 +76,6 @@ def parse_tsv (sep: Word8) (input: String): List (List String) =
   to_list $ map (words sep) lines
 
 
-
--- Random variables
-def expon (r: Float) (k: Key) : Float =
-  (log (1.0 - (rand k))) / -r
-
-def gauss (mu: Float) (sig: Float) (k: Key) : Float =
-  mu + (sig * (randn k))
-
-def unif (l: Float) (u: Float) (k: Key) : Float =
-  l + ((u - l) * (rand k))
-
-
 -- some Markov chain utilities
 
 def step_n {s} (n: Nat) (kern: s -> Key -> s)
