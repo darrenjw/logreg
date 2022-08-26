@@ -1,9 +1,9 @@
-'# stats
+'# Stats
 Probability distributions and other functions useful for statistical computing
 
 
 '## Univariate probability distributions
-Simulation and evaluation of random variables. Random variables are listed in alphabetical order except for the exponential distribution, which is listed first as an exemplar complete implementation.
+Simulation and evaluation of random variables. Random variables are listed in alphabetical order except for the exponential distribution, which is listed first as an exemplar simple yet complete implementation.
 
 '**Naming convention**: the current naming convention is:
 ```
@@ -84,7 +84,7 @@ def gaussian (mu:Float) (sig:Float) (k:Key) : Float =
   mu + (sig * (randn k))
 
 '### Geometric distribution
-Parameterised by success probability, `p`. Mean is `1/p`.
+Number of trials until a success (**not** number of failures). Parameterised by success probability, `p`. Mean is `1/p`.
 
 def geometric_ld (p:Float) (n:Nat) : Float =
   nf = n_to_f n

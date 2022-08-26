@@ -1,0 +1,69 @@
+-- stats-tests.dx
+
+import stats
+
+-- mainly cross-checking against results from R
+
+-- exponential
+
+exponential_ld 2.0 3.0 ~~ -5.306853
+
+exponential_lp 2.0 3.0 ~~ -0.002481829
+
+exponential_ls 2.0 3.0 ~~ -6
+
+exponential_q 2.0 0.5 ~~ 0.3465736
+
+rand_vec 5 (exponential 2.0) (new_key 0)
+
+-- bernoulli
+
+bernoulli_ld 0.6 True ~~ -0.5108256
+
+rand_vec 5 (bernoulli 0.6) (new_key 0)
+
+-- binomial
+
+binomial_ld 10 0.4 8 ~~ -4.545315
+
+rand_vec 5 (binomial 10 0.4) (new_key 0)
+
+-- gaussian
+
+gaussian_ld 1.0 2.0 3.0 ~~ -2.112086
+
+rand_vec 5 (gaussian 1.0 2.0) (new_key 0)
+
+-- geometric
+
+geometric_ld 0.1 10 ~~ -3.25083
+
+geometric_lp 0.1 10 ~~ -0.4287518
+
+geometric_ls 0.1 10 ~~ -1.053605
+
+rand_vec 5 (geometric 0.1) (new_key 0)
+
+-- poisson
+
+poisson_ld 5.0 8 ~~ -2.7291
+
+rand_vec 5 (poisson 5.0) (new_key 0)
+
+-- uniform
+
+uniform_ld 2.0 5.0 3.5 ~~ -1.098612
+
+uniform_lp 2.0 5.0 3.5 ~~ -0.6931472
+
+uniform_ls 2.0 5.0 3.5 ~~ -0.6931472
+
+uniform_q 2.0 5.0 0.2 ~~ 2.6
+
+rand_vec 5 (uniform 2.0 5.0) (new_key 0)
+
+
+
+
+-- eof
+

@@ -39,6 +39,9 @@ stats:
 	make stats.html
 	xdg-open stats.html
 
+stats-tests:
+	dex --lib-path $(LIBPATH) script stats-tests.dx
+
 utils:
 	make djwutils.html
 	xdg-open djwutils.html
