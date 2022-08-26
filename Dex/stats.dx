@@ -142,6 +142,12 @@ def uniform (l:Float) (u:Float) (k:Key) : Float =
 '## Data summaries
 
 
+def meanAndVar {n} (v:n=>Float) : (Float & Float) =
+  m = mean v
+  ss = sum for i. sq (v.i - m)
+  v = ss / ((n_to_f (size n)) - 1.0)
+  (m, v)
+
 
 
 
