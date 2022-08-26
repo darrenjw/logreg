@@ -97,7 +97,7 @@ def geometric_lp (p:Float) (n:Nat) : Float =
 def geometric_ls (p:Float) (n:Nat) : Float =
   (n_to_f n) * (log1p (-p))
 
-def geometric (p:Float) (k:Key) : Float =
+def geometric (p:Float) (k:Key) : Nat =
   yield_state 1 \x.
     with_state k \ks.
       while do
