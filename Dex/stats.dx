@@ -97,8 +97,18 @@ def geometric_lp (p:Float) (n:Nat) : Float =
 def geometric_ls (p:Float) (n:Nat) : Float =
   (n_to_f n) * (log1p (-p))
 
--- TODO: Will need state for generation...
-
+def geometric (p:Float) (k:Key) : Float =
+  yield_state 1 \x.
+    with_state k \ks.
+      while do
+        [k1, k2] = split_key (get ks)
+        if (bern p k1)
+          then
+            False
+          else
+            x := (get x) + 1
+            ks := k2
+            True
 
 '### Poisson distribution
 Parameterised by its rate, `r > 0`. Mean is `r`.
