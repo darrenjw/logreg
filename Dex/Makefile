@@ -27,7 +27,7 @@ edit:
 	emacs Makefile *.md *.R *.py *.dx &
 
 clean:
-	rm -f *.out *.tsv *~ *.pdf
+	rm -f *.out *.tsv *~ *.html *.pdf
 
 repl:
 	dex --lib-path $(LIBPATH) repl
@@ -35,16 +35,16 @@ repl:
 sandpit:
 	dex --lib-path $(LIBPATH) script sandpit.dx
 
-stats:
-	make stats.html
-	xdg-open stats.html
-
-stats-tests:
+tests:
 	dex --lib-path $(LIBPATH) script stats-tests.dx
 
-utils:
-	make djwutils.html
-	xdg-open djwutils.html
+
+.PRECIOUS: %.html
+%: %.html
+	make $<
+	xdg-open $<
+
+
 
 # eof
 
