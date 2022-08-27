@@ -63,6 +63,10 @@ uniform_q 2.0 5.0 0.2 ~~ 2.6
 rand_vec 5 (uniform 2.0 5.0) (new_key 0)
 
 
+-- data summaries
+
+meanAndVar [2.0,3.0,4.0] ~~ (3,1)
+
 
 
 -- eof
