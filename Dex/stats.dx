@@ -5,149 +5,165 @@ Probability distributions and other functions useful for statistical computing
 '## Univariate probability distributions
 Simulation and evaluation of random variables. Random variables are listed in alphabetical order except for the exponential distribution, which is listed first as an exemplar simple yet complete implementation.
 
-'**Naming convention**: the current naming convention is:
-```
-| *    | Random variate                                            |
-| *_ld | Log of the probability density or mass function           |
-| *_lp | Log of the probability function (the CDF)                 |
-| *_ls | Log of the survivor function (the complement of the CDF)  |
-| *_q  | The quantile function (inverse of the CDF)                |
-```
-where `*` is the name of a distribution.
+'## Dist interface
+Distributions implement the `Dist` interface.
+
+interface Dist d a
+  logpdf : d -> a -> Float
+  logcdf : d -> a -> Float
+  logsurv : d -> a -> Float
+  quantile : d -> Float -> a
+  draw : d -> Key -> a
+
 
 '### Exponential
 Parameterised by the *rate*, `r > 0`, so that the mean of the distribution is `1/r`.
 
--- log density
-def exponential_ld (r:Float) (x:Float) : Float =
-  if (x < 0.0)
-    then -infinity
-    else (log r) - (r * x)
+data ExponentialDist = Exponential Float
 
--- log probability (cumulative distribution function, CDF)
-def exponential_lp (r:Float) (x:Float) : Float =
-  if (x < 0.0)
-    then -infinity
-    else log1p (-exp (-r * x))
-
--- log survivor function (one minus the CDF)
-def exponential_ls (r:Float) (x:Float) : Float =
-  if (x < 0.0)
-    then 0.0
-    else -r * x
-
--- quantile function
-def exponential_q (r:Float) (q:Float) : Float =
-  (log1p (-q)) / -r
-  
--- random variates
-def exponential (r:Float) (k:Key) : Float =
-  exponential_q r (rand k)
+instance Dist ExponentialDist Float
+  logpdf = \(Exponential r) x.
+    if (x < 0.0)
+      then -infinity
+      else (log r) - (r * x)
+  logcdf = \(Exponential r) x.
+    if (x < 0.0)
+      then -infinity
+      else log1p (-exp (-r * x))
+  logsurv = \(Exponential r) x.
+    if (x < 0.0)
+      then 0.0
+      else -r * x
+  quantile = \(Exponential r) q.
+    (log1p (-q)) / -r
+  draw = \(Exponential r) k.
+    (log1p (-(rand k))) / -r
 
 
 '### Bernoulli distribution
 Parameterised by its "success" probability, `p`.
 
--- log density (mass)
-def bernoulli_ld (p: Float) (b: Bool) : Float =
-  if (b)
-   then log p
-   else log1p (-p)
+data BernoulliDist = Bernoulli Float
 
--- TODO: move "bern" here from prelude and rename
-def bernoulli (p:Float) (k:Key) : Bool =
-  bern p k
+instance Dist BernoulliDist Bool
+  logpdf = \(Bernoulli p) b.
+    if (b)
+     then log p
+     else log1p (-p)
+  logcdf = todo
+  logsurv = todo
+  quantile = todo
+  draw = \(Bernoulli p) k.
+    bern p k -- TODO: move "bern" here from the prelude
+
 
 '### Binomial distribution
 Parameterised by the number of trials, `n`, and the success probability, `p`. Mean is `np`.
 
--- log density (mass)
-def binomial_ld (n:Nat) (p:Float) (x:Nat) =
-  nf = n_to_f n
-  xf = n_to_f x
-  (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
-    (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
+data BinomialDist = Binomial Nat Float
 
--- TODO: move "binom" here from prelude and rename
-def binomial (n:Nat) (p:Float) (k:Key) : Nat =
-  binom n p k
+instance Dist BinomialDist Nat
+  logpdf = \(Binomial n p) x.
+    nf = n_to_f n
+    xf = n_to_f x
+    (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
+      (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
+  logcdf = todo
+  logsurv = todo
+  quantile = todo
+  draw = \(Binomial n p) k.
+    binom n p k -- TODO: move "binom" here from the prelude
+
 
 '### Gaussian distribution
 Parameterised by its *mean*, `mu`, and *standard deviation*, `sig`. ie. **not** variance or precision.
 
-def gaussian_ld (mu:Float) (sig:Float) (x:Float) : Float =
-  -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig))) 
+data GaussianDist = Gaussian Float Float
 
--- TODO: "gaussian_lp" would be OK if some sort of "erf" function was available
+instance Dist GaussianDist Float
+  logpdf = \(Gaussian mu sig) x.
+    -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig)))
+  logcdf = todo -- need some sort of "erf" function for this
+  logsurv = todo --- ditto
+  quantile = todo
+  draw = \(Gaussian mu sig) k.
+    mu + (sig * (randn k))
 
-def gaussian (mu:Float) (sig:Float) (k:Key) : Float =
-  mu + (sig * (randn k))
 
 '### Geometric distribution
 Number of trials until a success (**not** number of failures). Parameterised by success probability, `p`. Mean is `1/p`.
 
-def geometric_ld (p:Float) (n:Nat) : Float =
-  nf = n_to_f n
-  ((nf-1)*(log1p (-p))) + (log p)
+data GeometricDist = Geometric Float
 
-def geometric_lp (p:Float) (n:Nat) : Float =
-  nf = n_to_f n
-  log1p (-pow (1-p) nf)
+instance Dist GeometricDist Nat
+  logpdf = \(Geometric p) n.
+    nf = n_to_f n
+    ((nf-1)*(log1p (-p))) + (log p)
+  logcdf = \(Geometric p) n.
+    nf = n_to_f n
+    log1p (-pow (1-p) nf)
+  logsurv = \(Geometric p) n.
+    (n_to_f n) * (log1p (-p))
+  quantile = todo
+  draw = \(Geometric p) k.
+    yield_state 1 \x.
+      with_state k \ks.
+        while do
+          [k1, k2] = split_key (get ks)
+          if (bern p k1)
+            then
+              False
+            else
+              x := (get x) + 1
+              ks := k2
+              True
 
-def geometric_ls (p:Float) (n:Nat) : Float =
-  (n_to_f n) * (log1p (-p))
-
-def geometric (p:Float) (k:Key) : Nat =
-  yield_state 1 \x.
-    with_state k \ks.
-      while do
-        [k1, k2] = split_key (get ks)
-        if (bern p k1)
-          then
-            False
-          else
-            x := (get x) + 1
-            ks := k2
-            True
 
 '### Poisson distribution
 Parameterised by its rate, `r > 0`. Mean is `r`.
 
-def poisson_ld (r:Float) (n:Nat) : Float =
-  nf = n_to_f n
-  (nf * (log r)) - r - lgamma(nf + 1)
+data PoissonDist = Poisson Float
 
--- TODO: move "poisson" here from prelude
--- def poisson (r:Float) (k:Key) : Nat
+instance Dist PoissonDist Nat
+  logpdf = \(Poisson r) n.
+    nf = n_to_f n
+    (nf * (log r)) - r - lgamma(nf + 1)
+  logcdf = todo
+  logsurv = todo
+  quantile = todo
+  draw = \(Poisson r) k.
+    poisson r k -- TODO: move "poisson" from prelude to here
+  
 
 '### Uniform distribution
 A continuous distribution uniform on an interval determined by a lower bound, `l`, and upper bound, `u > l`. Mean is `(l+u)/2`.
 
-def uniform_ld (l:Float) (u:Float) (x:Float) : Float =
-  if (x >= l)&&(x <= u)
-    then -log (u - l)
-    else -infinity
+data UniformDist = Uniform Float Float
 
-def uniform_lp (l:Float) (u:Float) (x:Float) : Float =
-  if (x < l)
-    then -infinity
-    else if (x > u)
-      then 0.0
-      else (log (x-l)) - (log (u-l))
-
-def uniform_ls (l:Float) (u:Float) (x:Float) : Float =
-  if (x < l)
-    then 0.0
-    else if (x > u)
+instance Dist UniformDist Float
+  logpdf = \(Uniform l u) x.
+    if (x >= l)&&(x <= u)
+      then -log (u - l)
+      else -infinity
+  logcdf = \(Uniform l u) x.
+    if (x < l)
       then -infinity
-      else (log (u-x)) - (log (u-l))
-
-def uniform_q (l:Float) (u:Float) (q:Float) : Float =
-  l + ((u - l) * q)
-
-def uniform (l:Float) (u:Float) (k:Key) : Float =
-  uniform_q l u (rand k)
-
+      else if (x > u)
+        then 0.0
+        else (log (x-l)) - (log (u-l))
+  logsurv = \(Uniform l u) x.
+    if (x < l)
+      then 0.0
+      else if (x > u)
+        then -infinity
+        else (log (u-x)) - (log (u-l))
+  quantile = \(Uniform l u) q.
+    l + ((u - l) * q)
+  draw = \(Uniform l u) k.
+    l + ((u - l) * (rand k))
+  
+  
+  
 
 '## Data summaries
 
