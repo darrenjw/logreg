@@ -9,9 +9,9 @@ Simulation and evaluation of random variables. Random variables are listed in al
 Distributions implement the `Dist` interface.
 
 interface Dist d a
-  logpdf : d -> a -> Float
-  logcdf : d -> a -> Float
-  logsurv : d -> a -> Float
+  log_pdf : d -> a -> Float
+  log_cdf : d -> a -> Float
+  log_surv : d -> a -> Float
   quantile : d -> Float -> a
   draw : d -> Key -> a
 
@@ -22,15 +22,15 @@ Parameterised by the *rate*, `r > 0`, so that the mean of the distribution is `1
 data ExponentialDist = Exponential Float
 
 instance Dist ExponentialDist Float
-  logpdf = \(Exponential r) x.
+  log_pdf = \(Exponential r) x.
     if (x < 0.0)
       then -infinity
       else (log r) - (r * x)
-  logcdf = \(Exponential r) x.
+  log_cdf = \(Exponential r) x.
     if (x < 0.0)
       then -infinity
       else log1p (-exp (-r * x))
-  logsurv = \(Exponential r) x.
+  log_surv = \(Exponential r) x.
     if (x < 0.0)
       then 0.0
       else -r * x
@@ -46,12 +46,12 @@ Parameterised by its "success" probability, `p`.
 data BernoulliDist = Bernoulli Float
 
 instance Dist BernoulliDist Bool
-  logpdf = \(Bernoulli p) b.
+  log_pdf = \(Bernoulli p) b.
     if (b)
      then log p
      else log1p (-p)
-  logcdf = todo
-  logsurv = todo
+  log_cdf = todo
+  log_surv = todo
   quantile = todo
   draw = \(Bernoulli p) k.
     bern p k -- TODO: move "bern" here from the prelude
@@ -63,13 +63,13 @@ Parameterised by the number of trials, `n`, and the success probability, `p`. Me
 data BinomialDist = Binomial Nat Float
 
 instance Dist BinomialDist Nat
-  logpdf = \(Binomial n p) x.
+  log_pdf = \(Binomial n p) x.
     nf = n_to_f n
     xf = n_to_f x
     (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
       (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
-  logcdf = todo
-  logsurv = todo
+  log_cdf = todo
+  log_surv = todo
   quantile = todo
   draw = \(Binomial n p) k.
     binom n p k -- TODO: move "binom" here from the prelude
@@ -81,10 +81,10 @@ Parameterised by its *mean*, `mu`, and *standard deviation*, `sig`. ie. **not** 
 data GaussianDist = Gaussian Float Float
 
 instance Dist GaussianDist Float
-  logpdf = \(Gaussian mu sig) x.
+  log_pdf = \(Gaussian mu sig) x.
     -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig)))
-  logcdf = todo -- need some sort of "erf" function for this
-  logsurv = todo --- ditto
+  log_cdf = todo -- need some sort of "erf" function for this
+  log_surv = todo --- ditto
   quantile = todo
   draw = \(Gaussian mu sig) k.
     mu + (sig * (randn k))
@@ -96,13 +96,13 @@ Number of trials until a success (**not** number of failures). Parameterised by 
 data GeometricDist = Geometric Float
 
 instance Dist GeometricDist Nat
-  logpdf = \(Geometric p) n.
+  log_pdf = \(Geometric p) n.
     nf = n_to_f n
     ((nf-1)*(log1p (-p))) + (log p)
-  logcdf = \(Geometric p) n.
+  log_cdf = \(Geometric p) n.
     nf = n_to_f n
     log1p (-pow (1-p) nf)
-  logsurv = \(Geometric p) n.
+  log_surv = \(Geometric p) n.
     (n_to_f n) * (log1p (-p))
   quantile = todo
   draw = \(Geometric p) k.
@@ -125,11 +125,11 @@ Parameterised by its rate, `r > 0`. Mean is `r`.
 data PoissonDist = Poisson Float
 
 instance Dist PoissonDist Nat
-  logpdf = \(Poisson r) n.
+  log_pdf = \(Poisson r) n.
     nf = n_to_f n
     (nf * (log r)) - r - lgamma(nf + 1)
-  logcdf = todo
-  logsurv = todo
+  log_cdf = todo
+  log_surv = todo
   quantile = todo
   draw = \(Poisson r) k.
     poisson r k -- TODO: move "poisson" from prelude to here
@@ -141,17 +141,17 @@ A continuous distribution uniform on an interval determined by a lower bound, `l
 data UniformDist = Uniform Float Float
 
 instance Dist UniformDist Float
-  logpdf = \(Uniform l u) x.
+  log_pdf = \(Uniform l u) x.
     if (x >= l)&&(x <= u)
       then -log (u - l)
       else -infinity
-  logcdf = \(Uniform l u) x.
+  log_cdf = \(Uniform l u) x.
     if (x < l)
       then -infinity
       else if (x > u)
         then 0.0
         else (log (x-l)) - (log (u-l))
-  logsurv = \(Uniform l u) x.
+  log_surv = \(Uniform l u) x.
     if (x < l)
       then 0.0
       else if (x > u)
@@ -168,7 +168,7 @@ instance Dist UniformDist Float
 '## Data summaries
 
 
-def meanAndVar {n} (v:n=>Float) : (Float & Float) =
+def mean_and_var {n} (v:n=>Float) : (Float & Float) =
   m = mean v
   ss = sum for i. sq (v.i - m)
   v = ss / ((n_to_f (size n)) - 1.0)

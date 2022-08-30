@@ -6,11 +6,11 @@ import stats
 
 -- exponential
 
-logpdf (Exponential 2.0) 3.0 ~~ -5.306853
+log_pdf (Exponential 2.0) 3.0 ~~ -5.306853
 
-logcdf (Exponential 2.0) 3.0 ~~ -0.002481829
+log_cdf (Exponential 2.0) 3.0 ~~ -0.002481829
 
-logsurv (Exponential 2.0) 3.0 ~~ -6
+log_surv (Exponential 2.0) 3.0 ~~ -6
 
 quantile (Exponential 2.0) 0.5 ~~ 0.3465736
 
@@ -19,50 +19,50 @@ rand_vec 5 ed (new_key 0)
 
 -- bernoulli
 
-logpdf (Bernoulli 0.6) True ~~ -0.5108256
+log_pdf (Bernoulli 0.6) True ~~ -0.5108256
 
 bid:(Key->Bool) = draw $ Bernoulli 0.6
 rand_vec 5 bid (new_key 0)
 
 -- binomial
 
-logpdf (Binomial 10 0.4) 8 ~~ -4.545315
+log_pdf (Binomial 10 0.4) 8 ~~ -4.545315
 
 bd:(Key->Nat) = draw $ Binomial 10 0.4
 rand_vec 5 bd (new_key 0)
 
 -- gaussian
 
-logpdf (Gaussian 1.0 2.0) 3.0 ~~ -2.112086
+log_pdf (Gaussian 1.0 2.0) 3.0 ~~ -2.112086
 
 gd:(Key->Float) = draw $ Gaussian 1.0 2.0
 rand_vec 5 gd (new_key 0)
 
 -- geometric
 
-logpdf (Geometric 0.1) 10 ~~ -3.25083
+log_pdf (Geometric 0.1) 10 ~~ -3.25083
 
-logcdf (Geometric 0.1) 10 ~~ -0.4287518
+log_cdf (Geometric 0.1) 10 ~~ -0.4287518
 
-logsurv (Geometric 0.1) 10 ~~ -1.053605
+log_surv (Geometric 0.1) 10 ~~ -1.053605
 
 gmd:(Key->Nat) = draw $ Geometric 0.1
 rand_vec 5 gmd (new_key 0)
 
 -- poisson
 
-logpdf (Poisson 5.0) 8 ~~ -2.7291
+log_pdf (Poisson 5.0) 8 ~~ -2.7291
 
 pd:(Key->Nat) = draw $ Poisson 5.0
 rand_vec 5 pd (new_key 0)
 
 -- uniform
 
-logpdf (Uniform 2.0 5.0) 3.5 ~~ -1.098612
+log_pdf (Uniform 2.0 5.0) 3.5 ~~ -1.098612
 
-logcdf (Uniform 2.0 5.0) 3.5 ~~ -0.6931472
+log_cdf (Uniform 2.0 5.0) 3.5 ~~ -0.6931472
 
-logsurv (Uniform 2.0 5.0) 3.5 ~~ -0.6931472
+log_surv (Uniform 2.0 5.0) 3.5 ~~ -0.6931472
 
 quantile (Uniform 2.0 5.0) 0.2 ~~ 2.6
 
@@ -72,7 +72,7 @@ rand_vec 5 ud (new_key 0)
 
 -- data summaries
 
-meanAndVar [2.0,3.0,4.0] ~~ (3,1)
+mean_and_var [2.0,3.0,4.0] ~~ (3,1)
 
 
 
