@@ -3,7 +3,7 @@ Probability distributions and other functions useful for statistical computing
 
 
 '## Univariate probability distributions
-Simulation and evaluation of random variables. Random variables are listed in alphabetical order except for the exponential distribution, which is listed first as an exemplar simple yet complete implementation.
+Simulation and evaluation of [probability distributions](https://en.wikipedia.org/wiki/Probability_distribution). 
 
 '## Dist interface
 Distributions implement the `Dist` interface.
@@ -16,8 +16,64 @@ interface Dist d a
   draw : d -> Key -> a          -- function for random draws
 
 
-'### Exponential
-Parameterised by the *rate*, `r > 0`, so that the mean of the distribution is `1/r`.
+'### Bernoulli distribution
+The [Bernoulli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution) is parameterised by its "success" probability, `p`.
+
+data BernoulliDist = Bernoulli Float
+
+instance Dist BernoulliDist Bool
+  log_pdf = \(Bernoulli p) b.
+    if (b)
+     then log p
+     else log1p (-p)
+  log_cdf = \(Bernoulli p) b.
+    if (b)
+      then 0.0
+      else log1p (-p)
+  log_sf = \(Bernoulli p) b.
+    if (b)
+      then -infinity
+      else log p
+  quantile = \(Bernoulli p) q.
+    q > (1 - p)
+  draw = \(Bernoulli p) k.
+    (rand k) < p
+
+
+'### Binomial distribution
+The [binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution) is parameterised by the number of trials, `n`, and the success probability, `p`. Mean is `np`.
+
+data BinomialDist = Binomial Nat Float
+
+def binomial_log_pdf_private (n: Nat) (p: Float) (x: Nat) : Float =
+  nf = n_to_f n
+  xf = n_to_f x
+  (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
+    (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
+
+instance Dist BinomialDist Nat
+  log_pdf = \(Binomial n p) x.
+    binomial_log_pdf_private n p x
+  log_cdf = \(Binomial n p) x.
+    xp1:Nat = x + 1
+    logsumexp $ for i:(Fin xp1). binomial_log_pdf_private n p (ordinal i)
+  log_sf = \(Binomial n p) x.
+    nmx = n -| x
+    logsumexp $ for i:(Fin nmx). binomial_log_pdf_private n p (x + 1 + ordinal i)
+  quantile = \(Binomial n p) q.
+    np1:Nat = n + 1
+    lpdf = for i:(Fin np1). binomial_log_pdf_private n p (ordinal i)
+    cdf = cdf_for_categorical lpdf
+    mi = search_sorted cdf q
+    ordinal $ from_just mi
+  draw = \(Binomial n p) k.
+    sum $ map b_to_n (rand_vec n (draw $ Bernoulli p) k)
+
+-- TODO: remove "binom" from the prelude
+
+
+'### Exponential distribution
+The [exponential distribution](https://en.wikipedia.org/wiki/Exponential_distribution) is parameterised by its *rate*, `r > 0`, so that the mean of the distribution is `1/r`.
 
 data ExponentialDist = Exponential Float
 
@@ -40,58 +96,23 @@ instance Dist ExponentialDist Float
     (log1p (-(rand k))) / -r
 
 
-'### Bernoulli distribution
-Parameterised by its "success" probability, `p`.
-
-data BernoulliDist = Bernoulli Float
-
-instance Dist BernoulliDist Bool
-  log_pdf = \(Bernoulli p) b.
-    if (b)
-     then log p
-     else log1p (-p)
-  log_cdf = todo
-  log_sf = todo
-  quantile = todo
-  draw = \(Bernoulli p) k.
-    bern p k -- TODO: move "bern" here from the prelude
-
-
-'### Binomial distribution
-Parameterised by the number of trials, `n`, and the success probability, `p`. Mean is `np`.
-
-data BinomialDist = Binomial Nat Float
-
-instance Dist BinomialDist Nat
-  log_pdf = \(Binomial n p) x.
-    nf = n_to_f n
-    xf = n_to_f x
-    (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
-      (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
-  log_cdf = todo
-  log_sf = todo
-  quantile = todo
-  draw = \(Binomial n p) k.
-    binom n p k -- TODO: move "binom" here from the prelude
-
-
 '### Gaussian distribution
-Parameterised by its *mean*, `mu`, and *standard deviation*, `sig`. ie. **not** variance or precision.
+The Gaussian, or [normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) is parameterised by its *mean*, `mu`, and *standard deviation*, `sig`. ie. **not** variance or precision.
 
 data GaussianDist = Gaussian Float Float
 
 instance Dist GaussianDist Float
   log_pdf = \(Gaussian mu sig) x.
     -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig)))
-  log_cdf = todo -- need some sort of "erf" function for this
-  log_sf = todo --- ditto
-  quantile = todo
+  log_cdf = todo  -- need some sort of "erf" function for this
+  log_sf = todo   -- ditto
+  quantile = todo -- need inverse "erf" function
   draw = \(Gaussian mu sig) k.
     mu + (sig * (randn k))
 
 
 '### Geometric distribution
-Number of trials until a success (**not** number of failures). Parameterised by success probability, `p`. Mean is `1/p`.
+This [geometric distribution](https://en.wikipedia.org/wiki/Geometric_distribution) is defined as the number of trials until a success (**not** the number of failures). Parameterised by success probability, `p`. Mean is `1/p`.
 
 data GeometricDist = Geometric Float
 
@@ -104,13 +125,14 @@ instance Dist GeometricDist Nat
     log1p (-pow (1-p) nf)
   log_sf = \(Geometric p) n.
     (n_to_f n) * (log1p (-p))
-  quantile = todo
+  quantile = \(Geometric p) q.
+    f_to_n $ ceil $ (log1p (-q)) / (log1p (-p))
   draw = \(Geometric p) k.
     yield_state 1 \x.
       with_state k \ks.
         while do
           [k1, k2] = split_key (get ks)
-          if (bern p k1)
+          if (draw (Bernoulli p) k1)
             then
               False
             else
