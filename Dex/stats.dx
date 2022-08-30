@@ -168,14 +168,27 @@ instance Dist UniformDist Float
 '## Data summaries
 
 
-def mean_and_var {n} (v:n=>Float) : (Float & Float) =
-  m = mean v
-  ss = sum for i. sq (v.i - m)
+def mean_and_var {n} (xs:n=>Float) : (Float & Float) =
+  m = mean xs
+  ss = sum for i. sq (xs.i - m)
   v = ss / ((n_to_f (size n)) - 1.0)
   (m, v)
 
+def var {n} (xs:n=>Float) : Float =
+  snd $ mean_and_var xs
+
+def sd {n} (xs:n=>Float) : Float =
+  sqrt $ var xs
+
+def mean_and_cov {n d} (xs:n=>d=>Float) : (d=>Float & d=>d=>Float) =
+   xsMean :    d=>Float = (for i. sum for j. xs.j.i) / n_to_f (size n)
+   xsCov  : d=>d=>Float = (for i i'. sum for j.
+                           (xs.j.i' - xsMean.i') *
+                           (xs.j.i  - xsMean.i )   ) / (n_to_f (size n) - 1)
+   (xsMean, xsCov)
+
+def cov {n d} (xs:n=>d=>Float) : d=>d=>Float =
+  snd $ mean_and_cov xs
 
 
-
--- eof
 
