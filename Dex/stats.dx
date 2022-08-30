@@ -9,11 +9,11 @@ Simulation and evaluation of random variables. Random variables are listed in al
 Distributions implement the `Dist` interface.
 
 interface Dist d a
-  log_pdf : d -> a -> Float
-  log_cdf : d -> a -> Float
-  log_sf : d -> a -> Float
-  quantile : d -> Float -> a
-  draw : d -> Key -> a
+  log_pdf : d -> a -> Float     -- either the density function or mass function
+  log_cdf : d -> a -> Float     -- the cumulative distribution function (CDF)
+  log_sf : d -> a -> Float      -- the survivor function (complement of CDF)
+  quantile : d -> Float -> a    -- the quantile function (inverse CDF)
+  draw : d -> Key -> a          -- function for random draws
 
 
 '### Exponential
