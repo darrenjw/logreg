@@ -11,7 +11,7 @@ Distributions implement the `Dist` interface.
 interface Dist d a
   log_pdf : d -> a -> Float
   log_cdf : d -> a -> Float
-  log_surv : d -> a -> Float
+  log_sf : d -> a -> Float
   quantile : d -> Float -> a
   draw : d -> Key -> a
 
@@ -30,7 +30,7 @@ instance Dist ExponentialDist Float
     if (x < 0.0)
       then -infinity
       else log1p (-exp (-r * x))
-  log_surv = \(Exponential r) x.
+  log_sf = \(Exponential r) x.
     if (x < 0.0)
       then 0.0
       else -r * x
@@ -51,7 +51,7 @@ instance Dist BernoulliDist Bool
      then log p
      else log1p (-p)
   log_cdf = todo
-  log_surv = todo
+  log_sf = todo
   quantile = todo
   draw = \(Bernoulli p) k.
     bern p k -- TODO: move "bern" here from the prelude
@@ -69,7 +69,7 @@ instance Dist BinomialDist Nat
     (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
       (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
   log_cdf = todo
-  log_surv = todo
+  log_sf = todo
   quantile = todo
   draw = \(Binomial n p) k.
     binom n p k -- TODO: move "binom" here from the prelude
@@ -84,7 +84,7 @@ instance Dist GaussianDist Float
   log_pdf = \(Gaussian mu sig) x.
     -0.5 * ((log (2 * pi * (sq sig))) + (sq ((x - mu) / sig)))
   log_cdf = todo -- need some sort of "erf" function for this
-  log_surv = todo --- ditto
+  log_sf = todo --- ditto
   quantile = todo
   draw = \(Gaussian mu sig) k.
     mu + (sig * (randn k))
@@ -102,7 +102,7 @@ instance Dist GeometricDist Nat
   log_cdf = \(Geometric p) n.
     nf = n_to_f n
     log1p (-pow (1-p) nf)
-  log_surv = \(Geometric p) n.
+  log_sf = \(Geometric p) n.
     (n_to_f n) * (log1p (-p))
   quantile = todo
   draw = \(Geometric p) k.
@@ -129,7 +129,7 @@ instance Dist PoissonDist Nat
     nf = n_to_f n
     (nf * (log r)) - r - lgamma(nf + 1)
   log_cdf = todo
-  log_surv = todo
+  log_sf = todo
   quantile = todo
   draw = \(Poisson r) k.
     poisson r k -- TODO: move "poisson" from prelude to here
@@ -151,7 +151,7 @@ instance Dist UniformDist Float
       else if (x > u)
         then 0.0
         else (log (x-l)) - (log (u-l))
-  log_surv = \(Uniform l u) x.
+  log_sf = \(Uniform l u) x.
     if (x < l)
       then 0.0
       else if (x > u)
