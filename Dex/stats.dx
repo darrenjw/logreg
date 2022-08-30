@@ -48,8 +48,10 @@ data BinomialDist = Binomial Nat Float
 def binomial_log_pdf_private (n: Nat) (p: Float) (x: Nat) : Float =
   nf = n_to_f n
   xf = n_to_f x
-  (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
-    (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
+  if (xf > nf)
+    then -infinity
+    else (xf * (log p)) + ((nf - xf) * (log1p (-p))) +
+      (lgamma (nf + 1)) - (lgamma (xf + 1)) - (lgamma (nf + 1 - xf))
 
 instance Dist BinomialDist Nat
   log_pdf = \(Binomial n p) x.
@@ -128,37 +130,49 @@ instance Dist GeometricDist Nat
   quantile = \(Geometric p) q.
     f_to_n $ ceil $ (log1p (-q)) / (log1p (-p))
   draw = \(Geometric p) k.
-    yield_state 1 \x.
-      with_state k \ks.
-        while do
-          [k1, k2] = split_key (get ks)
-          if (draw (Bernoulli p) k1)
-            then
-              False
-            else
-              x := (get x) + 1
-              ks := k2
-              True
-
+    f_to_n $ ceil $ (log1p (-(rand k))) / (log1p (-p))
 
 '### Poisson distribution
-Parameterised by its rate, `r > 0`. Mean is `r`.
+The [Poisson distribution](https://en.wikipedia.org/wiki/Poisson_distribution) is parameterised by its rate, `r > 0`. Mean is `r`.
 
 data PoissonDist = Poisson Float
 
+def poisson_log_pdf_private (r: Float) (n: Nat) : Float =
+  nf = n_to_f n
+  (nf * (log r)) - r - lgamma(nf + 1)
+
 instance Dist PoissonDist Nat
-  log_pdf = \(Poisson r) n.
-    nf = n_to_f n
-    (nf * (log r)) - r - lgamma(nf + 1)
-  log_cdf = todo
-  log_sf = todo
-  quantile = todo
+  log_pdf = \(Poisson r) x.
+    poisson_log_pdf_private r x
+  log_cdf = \(Poisson r) x.
+    xp1:Nat = x + 1
+    logsumexp $ for i:(Fin xp1). poisson_log_pdf_private r (ordinal i)
+  log_sf = \(Poisson r) x.
+    xp1:Nat = x + 1
+    lcdf = logsumexp $ for i:(Fin xp1). poisson_log_pdf_private r (ordinal i)
+    log1p (-exp lcdf)
+  quantile = todo -- TODO: implement this!!! ********
   draw = \(Poisson r) k.
-    poisson r k -- TODO: move "poisson" from prelude to here
+    exp_neg_rate = exp (-r)
+    [current_k, next_k] = split_key k
+    yield_state 0 \ans.
+      with_state (rand current_k) \p. with_state next_k \k'.
+        while do
+          if get p > exp_neg_rate
+            then
+              [ck, nk] = split_key (get k')
+              p := (get p) * rand ck
+              ans := (get ans) + 1
+              k' := nk
+              True
+            else
+              False
+
+-- TODO: remove "poisson" from prelude
   
 
 '### Uniform distribution
-A continuous distribution uniform on an interval determined by a lower bound, `l`, and upper bound, `u > l`. Mean is `(l+u)/2`.
+The [uniform distribution](https://en.wikipedia.org/wiki/Continuous_uniform_distribution) is continuous on an interval determined by a lower bound, `l`, and upper bound, `u > l`. Mean is `(l+u)/2`.
 
 data UniformDist = Uniform Float Float
 
@@ -184,11 +198,8 @@ instance Dist UniformDist Float
   draw = \(Uniform l u) k.
     l + ((u - l) * (rand k))
   
-  
-  
 
 '## Data summaries
-
 
 def mean_and_var {n} (xs:n=>Float) : (Float & Float) =
   m = mean xs
