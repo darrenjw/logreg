@@ -230,8 +230,14 @@ def mean_and_cov {n d} (xs:n=>d=>Float) : (d=>Float & d=>d=>Float) =
                            (xs.j.i  - xsMean.i )   ) / (n_to_f (size n) - 1)
    (xsMean, xsCov)
 
-def cov {n d} (xs:n=>d=>Float) : d=>d=>Float =
+def cov_mat {n d} (xs:n=>d=>Float) : d=>d=>Float =
   snd $ mean_and_cov xs
 
+def cov {n} (x:n=>Float) (y:n=>Float) : Float =
+  xm = mean x
+  ym = mean y
+  ss = sum for i. (x.i - xm) * (y.i - ym)
+  ss / (n_to_f (size n) - 1)
 
-
+def cor {n} (x:n=>Float) (y:n=>Float) : Float =
+  (cov x y) / ((sd x) * (sd y))
