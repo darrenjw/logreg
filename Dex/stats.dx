@@ -151,7 +151,17 @@ instance Dist PoissonDist Nat
     xp1:Nat = x + 1
     lcdf = logsumexp $ for i:(Fin xp1). poisson_log_pdf_private r (ordinal i)
     log1p (-exp lcdf)
-  quantile = todo -- TODO: implement this!!! ********
+  quantile = \(Poisson r) q.
+    yield_state (0::Nat) \x.
+      with_state 0.0 \cdf.
+        while do
+          cdf := (get cdf) + exp (poisson_log_pdf_private r (get x))
+          if (get cdf) > q
+            then
+              False
+            else
+              x := (get x) + 1
+              True
   draw = \(Poisson r) k.
     exp_neg_rate = exp (-r)
     [current_k, next_k] = split_key k

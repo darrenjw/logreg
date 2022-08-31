@@ -68,7 +68,7 @@ log_cdf (Poisson 5.0) 8 ~~ -0.07052294
 
 log_sf (Poisson 5.0) 8 ~~ -2.686872
 
--- TODO: quantile test!
+quantile (Poisson 5.0) 0.7 == 6
 
 rand_vec 5 (draw $ Poisson 5.0) (new_key 0) :: Fin 5=>Nat
 
