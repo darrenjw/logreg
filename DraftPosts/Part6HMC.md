@@ -22,7 +22,7 @@ $$
 $$
 where $M$ is a diagonal matrix. But in fact, since we could change coordinates, there's no reason to require that $M$ is diagonal. All we need is that $M$ is positive definite, so that we don't have negative mass in any coordinate direction.
 
-We will take the above equation as our the fundamental law governing our dynamical system of interest. The motivation from Newtonian dynamics is interesting, but not required. What is important is that the dynamics of such a system are *conservative*, in a way that we will shortly make precise.
+We will take the above equation as the fundamental law governing our dynamical system of interest. The motivation from Newtonian dynamics is interesting, but not required. What is important is that the dynamics of such a system are *conservative*, in a way that we will shortly make precise.
 
 Our law of motion is a second-order differential equation, since it involves the second derivative of $q$ wrt time. If you've ever studied differential equations, you'll know that there is an easy way to turn a second order equation into a first order equation with twice the dimension by augmenting the system with the velocities. Here, it is more convenient to augment the system with "momentum" variables, $p$, which we define as $p = M\dot{q}$. Then we can write our second order system as a pair of first order equations
 $$
