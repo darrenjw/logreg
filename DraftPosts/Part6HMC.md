@@ -16,7 +16,7 @@ The potential function induces a (conservative) force on the particle equal to $
 $$
 \nabla V(q) + m \ddot{q} = 0.
 $$
-In Newtonian mechanics, we often consider the postion vector $q$ as 3-dimensional. Here it will be $n$-dimensional, where $n$ is the number of variables in our target. We can then think of our second law as governing a single $n$-dimensional particle of mass $m$, or $n$ one-dimensional particles all of mass $m$. But in this latter case, there is no need to assume that all particles have the same mass, and we could instead write our law of motion as
+In Newtonian mechanics, we often consider the position vector $q$ as 3-dimensional. Here it will be $n$-dimensional, where $n$ is the number of variables in our target. We can then think of our second law as governing a single $n$-dimensional particle of mass $m$, or $n$ one-dimensional particles all of mass $m$. But in this latter case, there is no need to assume that all particles have the same mass, and we could instead write our law of motion as
 $$
 \nabla V(q) + M \ddot{q} = 0,
 $$
@@ -213,7 +213,7 @@ def hmcKernel(lpi, glpi, eps = 1e-4, l = 10, dmm = 1):
         return mhk(key1, x)[jnp.array(range(d))]
     return kern
 ```
-There is something a little bit strange about this implementation, since the proposal for the M-H move is deterministic, the function `rprop` just ignores the RNG key that is passed to it. We could tidy this up by making a M-H function especially for deterministic proposals. We won't persue this here, but this issue will crop up again later in some of the other functional languages.
+There is something a little bit strange about this implementation, since the proposal for the M-H move is deterministic, the function `rprop` just ignores the RNG key that is passed to it. We could tidy this up by making a M-H function especially for deterministic proposals. We won't pursue this here, but this issue will crop up again later in some of the other functional languages.
 
 See the [full runnable script](https://github.com/darrenjw/logreg/blob/main/Python/fit-jax-hmc.py) for further details.
 
@@ -280,7 +280,7 @@ mdKernel logPost prop g x0 = do
         else x0
   return next
 ```
-Note that here we are using a M-H kernel specifically for *deterministic* proposals, since there is no non-derminism signalled in the type signature of `prop`. We can then use this to construct our HMC kernel.
+Note that here we are using a M-H kernel specifically for *deterministic* proposals, since there is no non-determinism signalled in the type signature of `prop`. We can then use this to construct our HMC kernel.
 ```haskell
 hmcKernel :: (StatefulGen g m) =>
   (Vector Double -> Double) -> (Vector Double -> Vector Double) -> Vector Double ->
