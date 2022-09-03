@@ -1,6 +1,6 @@
 -- stats-tests.dx
 
-import stats
+import statsdraft
 
 -- mainly cross-checking against results from R
 
@@ -110,6 +110,13 @@ cor [1.0,2.0,3.0] [2.0,4.0,3.0] ~~ 0.5
 cov [1.0,2.0,3.0] [4.0,8.0,6.0] ~~ 1
 
 cor [1.0,2.0,3.0] [4.0,8.0,6.0] ~~ 0.5
+
+
+def my_draw {d a} [Dist d a] (dist: d) (k: Key) : a =
+  draw dist k
+
+my_draw (Geometric 0.1) (new_key 0) :: Nat
+
 
 
 -- eof
