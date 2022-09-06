@@ -4,7 +4,6 @@ LIBPATH=BUILTIN_LIBRARIES:.
 
 FORCE:
 	make djwutils.html
-	make stats.html
 	make fit-bayes.out
 	make fit-ul.out
 	make fit-ul-ad.out
@@ -34,9 +33,6 @@ repl:
 
 sandpit:
 	dex --lib-path $(LIBPATH) script sandpit.dx
-
-tests:
-	dex --lib-path $(LIBPATH) script stats-tests.dx
 
 
 .PRECIOUS: %.html
