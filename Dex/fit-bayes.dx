@@ -7,15 +7,15 @@ import djwutils
 
 '## now read and process the data
 
-dat = unsafe_io do read_file "../pima.data"
-(AsList _ tab) = parse_tsv ' ' dat
-atab = map (cons "1.0") tab
+dat = unsafe_io \. read_file "../pima.data"
+AsList(_, tab) = parse_tsv ' ' dat
+atab = map (\l. cons "1.0" l) tab
 att = map (\r. list2tab r :: (Fin 9)=>String) atab
 xStr = map (\r. slice r 0 (Fin 8)) att
-xmb = map (\r. map parseString r) xStr :: (Fin 200)=>(Fin 8)=>(Maybe Float)
-x = map (\r. map from_just r) xmb :: (Fin 200)=>(Fin 8)=>Float
+xmb = map (\r. map parseString r) xStr :: _=>(Fin 8)=>(Maybe Float)
+x = map (\r. map from_just r) xmb :: _=>(Fin 8)=>Float
 yStrM = map (\r. slice r 8 (Fin 1)) att
-yStr = (transpose yStrM).(0@_)
+yStr = (transpose yStrM)[0@_]
 y = map (\s. select (s == "Yes") 1.0 0.0) yStr
 
 x
@@ -23,28 +23,28 @@ y
 
 '## now set up for MCMC
 
-def ll (b: (Fin 8)=>Float) : Float =
+def ll(b: (Fin 8)=>Float) -> Float =
   neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
 
 pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
 prscale = map (\ x. 1.0/x) pscale
 
-def lprior (b: (Fin 8)=>Float) : Float =
+def lprior(b: (Fin 8)=>Float) -> Float =
   bs = b*prscale
   neg $ sum ((log pscale) + (0.5 .* (bs*bs)))
 
-def lpost (b: (Fin 8)=>Float) : Float =
+def lpost(b: (Fin 8)=>Float) -> Float =
   (ll b) + (lprior b)
 
 pre = [10.0,1,1,1,1,1,5,1] -- pre-conditioner - relative weights of proposal SDs
 
-def rprop (b: (Fin 8)=>Float) (k: Key) : (Fin 8)=>Float =
+def rprop(b: (Fin 8)=>Float, k: Key) -> (Fin 8)=>Float =
   b + 0.02 .* (pre * (randn_vec k))
 
 k = new_key 42
 
-def mKernel {s} (lpost: s -> Float) (rprop: s-> Key -> s)
-    (sll: (s & Float)) (k: Key) : (s & Float) =
+def mKernel(lpost: (s) -> Float, rprop: (s, Key) -> s,
+    sll: (s, Float), k: Key) -> (s, Float) given (s) =
   (x0, ll0) = sll
   [k1, k2] = split_key k
   x = rprop x0 k1
@@ -53,13 +53,13 @@ def mKernel {s} (lpost: s -> Float) (rprop: s-> Key -> s)
   u = rand k2
   select (log u < a) (x, ll) (x0, ll0)
 
-kern = mKernel lpost rprop
+kern = \sl k. mKernel lpost rprop sl k
 
 init = [-9.0,0,0,0,0,0,0,0]
 
 '## run the MCMC
 
-out = markov_chain (init, -1.0e50) (step_n 1000 kern) 10000 k
+out = markov_chain (init, -1.0e50) (\s k. step_n 1000 kern s k) 10000 k
 
 '## analyse the MCMC output
 
@@ -71,7 +71,7 @@ snd mv -- (co)variance matrix
 -- :html show_plot $ y_plot $
 --   (map head mat)
 
-unsafe_io do write_file "fit-bayes.tsv" (to_tsv mat)
+unsafe_io \. write_file "fit-bayes.tsv" (to_tsv mat)
 
 
 -- eof

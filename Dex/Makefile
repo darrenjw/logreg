@@ -16,7 +16,7 @@ FORCE:
 	time dex --lib-path $(LIBPATH) script $<
 
 %.html: %.dx djwutils.dx
-	dex --lib-path $(LIBPATH) script $< --outfmt html > $@
+	dex --lib-path $(LIBPATH) -O script $< --outfmt html > $@
 
 %.out: %.tsv
 	./analyse.R $< > $@
