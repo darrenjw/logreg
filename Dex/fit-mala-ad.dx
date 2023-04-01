@@ -5,15 +5,15 @@ import djwutils
 
 '## now read and process the data
 
-dat = unsafe_io do read_file "../pima.data"
-(AsList _ tab) = parse_tsv ' ' dat
-atab = map (cons "1.0") tab
+dat = unsafe_io \. read_file "../pima.data"
+AsList(_, tab) = parse_tsv ' ' dat
+atab = map (\l. cons "1.0" l) tab
 att = map (\r. list2tab r :: (Fin 9)=>String) atab
 xStr = map (\r. slice r 0 (Fin 8)) att
-xmb = map (\r. map parseString r) xStr :: (Fin 200)=>(Fin 8)=>(Maybe Float)
-x = map (\r. map from_just r) xmb :: (Fin 200)=>(Fin 8)=>Float
+xmb = map (\r. map parseString r) xStr :: _=>(Fin 8)=>(Maybe Float)
+x = map (\r. map from_just r) xmb :: _=>(Fin 8)=>Float
 yStrM = map (\r. slice r 8 (Fin 1)) att
-yStr = (transpose yStrM).(0@_)
+yStr = (transpose yStrM)[0@_]
 y = map (\s. select (s == "Yes") 1.0 0.0) yStr
 
 x
@@ -21,23 +21,23 @@ y
 
 '## now set up for MCMC
 
-def ll (b: (Fin 8)=>Float) : Float =
+def ll(b: (Fin 8)=>Float) -> Float =
   neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
 
 pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
 prscale = map (\ x. 1.0/x) pscale
 
-def lprior (b: (Fin 8)=>Float) : Float =
+def lprior(b: (Fin 8)=>Float) -> Float =
   bs = b*prscale
   neg $ sum ((log pscale) + (0.5 .* (bs*bs)))
 
-def lpost (b: (Fin 8)=>Float) : Float =
+def lpost(b: (Fin 8)=>Float) -> Float =
   (ll b) + (lprior b)
 
 k = new_key 42
 
-def mhKernel {s} (lpost: s -> Float) (rprop: s -> Key -> s) (dprop: s -> s -> Float)
-    (sll: (s & Float)) (k: Key) : (s & Float) =
+def mhKernel(lpost: (s) -> Float, rprop: (s, Key) -> s, dprop: (s, s) -> Float,
+    sll: (s, Float), k: Key) -> (s, Float) given (s) =
   (x0, ll0) = sll
   [k1, k2] = split_key k
   x = rprop x0 k1
@@ -46,23 +46,23 @@ def mhKernel {s} (lpost: s -> Float) (rprop: s -> Key -> s) (dprop: s -> s -> Fl
   u = rand k2
   select (log u < a) (x, ll) (x0, ll0)
 
-def malaKernel {n} (lpi: (Fin n)=>Float -> Float)
-    (pre: (Fin n)=>Float) (dt: Float) :
-    ((Fin n)=>Float & Float) -> Key -> ((Fin n)=>Float & Float) =
+def malaKernel(lpi: (Fin n=>Float) -> Float,
+    pre: (Fin n)=>Float, dt: Float) ->
+    ((Fin n=>Float, Float), Key) -> ((Fin n=>Float), Float) given (n) =
   sdt = sqrt dt
   spre = sqrt pre
-  glp = grad lpi
+  glp = \x. grad lpi x
   v = dt .* pre
   vinv = map (\ x. 1.0/x) v
-  def advance (beta: (Fin n)=>Float) : (Fin n)=>Float =
+  def advance(beta: (Fin n)=>Float) -> (Fin n)=>Float =
     beta + (0.5*dt) .* (pre*(glp beta))
-  def rprop (beta: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
+  def rprop(beta: (Fin n)=>Float, k: Key) -> (Fin n)=>Float =
     (advance beta) + sdt .* (spre*(randn_vec k))
-  def dprop (new: (Fin n)=>Float) (old: (Fin n)=>Float) : Float =
+  def dprop(new: (Fin n)=>Float, old: (Fin n)=>Float) -> Float =
     ao = advance old
     diff = new - ao
     -0.5 * sum ((log v) + diff*diff*vinv)
-  mhKernel lpi rprop dprop
+  \s k. mhKernel lpi rprop dprop s k
 
 pre = [100.0,1,1,1,1,1,25,1] -- diagonal pre-conditioner
 
@@ -70,14 +70,14 @@ kern = malaKernel lpost pre 1.0e-5
 
 init = [-9.0,0,0,0,0,0,0,0]
 
-out = markov_chain (init, -1.0e50) (step_n 1000 kern) 10000 k
+out = markov_chain (init, -1.0e50) (\s k. step_n 1000 kern s k) 10000 k
 
 mat = map fst out -- ditch log-posterior evaluations
 mv = meanAndCovariance mat
 fst mv -- mean
 snd mv -- (co)variance matrix
 
-unsafe_io do write_file "fit-mala-ad.tsv" (to_tsv mat)
+unsafe_io \. write_file "fit-mala-ad.tsv" (to_tsv mat)
 
 
 -- eof

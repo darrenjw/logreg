@@ -5,15 +5,15 @@ import djwutils
 
 '## now read and process the data
 
-dat = unsafe_io do read_file "../pima.data"
-(AsList _ tab) = parse_tsv ' ' dat
-atab = map (cons "1.0") tab
+dat = unsafe_io \. read_file "../pima.data"
+AsList(_, tab) = parse_tsv ' ' dat
+atab = map (\l. cons "1.0" l) tab
 att = map (\r. list2tab r :: (Fin 9)=>String) atab
 xStr = map (\r. slice r 0 (Fin 8)) att
-xmb = map (\r. map parseString r) xStr :: (Fin 200)=>(Fin 8)=>(Maybe Float)
-x = map (\r. map from_just r) xmb :: (Fin 200)=>(Fin 8)=>Float
+xmb = map (\r. map parseString r) xStr :: _=>(Fin 8)=>(Maybe Float)
+x = map (\r. map from_just r) xmb :: _=>(Fin 8)=>Float
 yStrM = map (\r. slice r 8 (Fin 1)) att
-yStr = (transpose yStrM).(0@_)
+yStr = (transpose yStrM)[0@_]
 y = map (\s. select (s == "Yes") 1.0 0.0) yStr
 
 x
@@ -21,24 +21,24 @@ y
 
 '## now set up for MCMC
 
-def ll (b: (Fin 8)=>Float) : Float =
+def ll(b: (Fin 8)=>Float) -> Float =
   neg $ sum (log (map (\ x. (exp x) + 1) ((map (\ yi. 1 - 2*yi) y)*(x **. b))))
 
 pscale = [10.0, 1, 1, 1, 1, 1, 1, 1] -- prior SDs
 prscale = map (\ x. 1.0/x) pscale
 
-def lprior (b: (Fin 8)=>Float) : Float =
+def lprior(b: (Fin 8)=>Float) -> Float =
   bs = b*prscale
   neg $ sum ((log pscale) + (0.5 .* (bs*bs)))
 
-def lpost (b: (Fin 8)=>Float) : Float =
+def lpost(b: (Fin 8)=>Float) -> Float =
   (ll b) + (lprior b)
 
 k = new_key 42
 
 -- Metropolis with deterministic proposal
-def mdKernel {s} (lpost: s -> Float) (prop: s -> s)
-    (x0: s) (k: Key) : s =
+def mdKernel(lpost: (s) -> Float, prop: (s) -> s,
+    x0: s, k: Key) -> s given (s) =
   x = prop x0
   ll0 = lpost x0
   ll = lpost x
@@ -46,30 +46,31 @@ def mdKernel {s} (lpost: s -> Float) (prop: s -> s)
   u = rand k
   select (log u < a) x x0
 
-def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
-    (dmm: (Fin n)=>Float) (eps: Float) (l: Nat)
-    (q0: (Fin n)=>Float) (k: Key) : (Fin n)=>Float =
+def hmcKernel(lpi: (Fin n=>Float) -> Float,
+    dmm: (Fin n)=>Float, eps: Float, l: Nat,
+    q0: (Fin n)=>Float, k: Key) -> (Fin n)=>Float given (n) =
   sdmm = sqrt dmm
   idmm = map (\x. 1.0/x) dmm
-  glpi = grad lpi
-  def leapf (q0: (Fin n)=>Float) (p0: (Fin n)=>Float) :
-      ((Fin n)=>Float & (Fin n)=>Float) =
+  glpi = \x. grad lpi x
+  def leapf(q0: (Fin n)=>Float, p0: (Fin n)=>Float) ->
+      ((Fin n=>Float), (Fin n)=>Float) =
     p1 = p0 + (eps/2) .* (glpi q0)
     q1 = q0 + eps .* (p1*idmm)
-    (q, p) = apply_n l (q1, p1) \(qo, po).
+    (q, p) = apply_n l (q1, p1) \qpo.
+      (qo, po) = qpo
       pn = po + eps .* (glpi qo)
       qn = qo + eps .* (pn*idmm)
       (qn, pn)
     pf = p + (eps/2) .* (glpi q)
     (q, -pf)
-  def alpi (qp: ((Fin n)=>Float & (Fin n)=>Float)) : Float =
+  def alpi(qp: ((Fin n=>Float), (Fin n)=>Float)) -> Float =
     (q, p) = qp
     (lpi q) - 0.5*(sum (p*p*idmm))
-  def prop (qp: ((Fin n)=>Float & (Fin n)=>Float)) :
-      ((Fin n)=>Float & (Fin n)=>Float) =
+  def prop(qp: ((Fin n=>Float), (Fin n)=>Float)) ->
+      ((Fin n=>Float), (Fin n)=>Float) =
     (q, p) = qp
     leapf q p
-  mk = mdKernel alpi prop
+  mk = \s k. mdKernel alpi prop s k
   [k1, k2] = split_key k
   z = randn_vec k1
   p0 = sdmm * z
@@ -78,17 +79,17 @@ def hmcKernel {n} (lpi: (Fin n)=>Float -> Float)
     
 pre = [100.0, 1, 1, 1, 1, 1, 25, 1]
 
-kern = hmcKernel lpost (map (\x. 1.0/x) pre) 1.0e-3 49
+kern = \s k. hmcKernel lpost (map (\x. 1.0/x) pre) 1.0e-3 49 s k
 
 init = [-9.0,0,0,0,0,0,0,0]
 
-mat = markov_chain init (step_n 20 kern) 10000 k
+mat = markov_chain init (\s k. step_n 20 kern s k) 10000 k
 
 mv = meanAndCovariance mat
 fst mv -- mean
 snd mv -- (co)variance matrix
 
-unsafe_io do write_file "fit-hmc-ad.tsv" (to_tsv mat)
+unsafe_io \. write_file "fit-hmc-ad.tsv" (to_tsv mat)
 
 
 -- eof

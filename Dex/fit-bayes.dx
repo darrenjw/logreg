@@ -9,7 +9,7 @@ import djwutils
 
 dat = unsafe_io \. read_file "../pima.data"
 AsList(_, tab) = parse_tsv ' ' dat
-atab = map (\l. cons "1.0" l) tab
+atab = map (\l. cons "1.0" l) tab -- partial application?
 att = map (\r. list2tab r :: (Fin 9)=>String) atab
 xStr = map (\r. slice r 0 (Fin 8)) att
 xmb = map (\r. map parseString r) xStr :: _=>(Fin 8)=>(Maybe Float)
