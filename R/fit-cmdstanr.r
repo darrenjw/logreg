@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
-## fit-rstan.R
+## fit-cmdstanr.R
 ## Bayesian MCMC fit using R-Stan
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load("arrow", "smfsb", "rstan")
+pacman::p_load("arrow", "smfsb", "cmdstanr")
 
-df = read_parquet(file.path("..", "pima.parquet"))
+df = read_parquet(file.path("pima.parquet"))
 print(head(df))
 n = dim(df)[1]
 p = dim(df)[2]
@@ -20,7 +20,7 @@ set.seed(43) # fix seed to avoid choosing bad inits
 init = rnorm(p, 0.1)
 names(init) = colnames(X)
 
-modelstring="
+modelstring ="
 data {
   int<lower=1> n;
   int<lower=1> p;
@@ -36,21 +36,26 @@ model {
  y ~ bernoulli_logit_glm(X[:, 2:p], beta[1], beta[2:p]);
 }
 "
-rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
+
+f <- write_stan_file(modelstring)
 constants = list(n=n, p=p, X=X, y=as.integer(y))
-print("Calling stan now...")
 thin = 2 # set thinning here
-init_fun = function(...)
-    list(beta=init) # same init for each chain not ideal...
-output = stan(model_code=modelstring, data=constants, iter=2500*thin+1000,
-              chains=4, warmup=1000, thin=thin, init=init_fun)
-out = as.matrix(output)
-mcmcSummary(out)
-image(cor(out)[ncol(out):1,])
-pairs(out[sample(1:10000,1000),],pch=19,cex=0.2)
 
+print("Calling stan now...")
+mod <- cmdstan_model(f)
 
+mod_out <- mod$sample(
+  data = constants,
+  parallel_chains = 4,
+  iter_sampling = 2500 * thin + 1000,
+  iter_warmup = 1000,
+  thin = thin,
+  init = function() list(beta = init)
+)
 
+out <- mod_out$summary()
+out_draws <- mod_out$draws(format = "matrix")
+image(cor(out_draws))
+pairs(out_draws[sample(1:10000,1000),],pch=19,cex=0.2)
 ## eof
 
